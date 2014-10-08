@@ -1,0 +1,60 @@
+# GENERAL OPTIONS
+MAPPING_DIRECTORY 	= mapping
+CHIMERAS_DIRECTORY 	= chimeras
+
+$(MAPPING_DIRECTORY):
+	mkdir -p $(MAPPING_DIRECTORY)
+
+$(CHIMERAS_DIRECTORY):
+	mkdir -p $(CHIMERAS_DIRECTORY)
+
+
+# CRAC VARIABLES
+#
+# INPUT :
+#	- CRAC_INPUT_DIRECTORY
+# OUTPUT :
+#
+# OPTIONAL :
+#
+# - CRAC_BINARY
+CRAC_BINARY						=	crac
+CRAC_VERSION 					=	$(shell $(CRAC_BINARY) -v | head -1 | cut -d " " -f 3)
+CRAC_OUTPUT_DIRECTORY	=	$(MAPPING_DIRECTORY)/crac-$(CRAC_VERSION)
+CRAC_SAMS 						= $(CRAC_RAWS:$(CRAC_INPUT_DIRECTORY)%_1.fastq=$(CRAC_OUTPUT_DIRECTORY)%.sam)
+CRAC_BAMS							= $(CRAC_SAMS:.sam=.bam)
+CRAC_REMOVE_SAMS			= false
+
+crac: |$(CRAC_OUTPUT_DIRECTORY) $(CRAC_SAMS)
+
+crac_bam: | crac $(CRAC_SAMS:.sam=.bam)
+
+$(CRAC_OUTPUT_DIRECTORY): | $(MAPPING_DIRECTORY)
+	mkdir -p $@
+
+$(CRAC_SAMS): $(CRAC_RAWS)
+	echo "Using CRAC version $(CRAC_VERSION)"
+	$(CRAC_BINARY) -i $(CRAC_INDEX) -r $< -k $(CRAC_KMER_LENGTH) $(CRAC_OPTIONS) -o - --summary $(@:.sam=-summary.txt) > $@  2> $(@:.sam=.log)
+
+# CHIMCT
+CHIMCT_BINARY						= chimCT
+CHIMCT_GFF							= /data/annotations/human/ensembl.gff
+CHIMCT_OUTPUT_DIRECTORY	=	$(CHIMERAS_DIRECTORY)/chimCT
+CHIMCT_CSVS							= $(CHIMCT_SAMS:$(CHIMCT_INPUT_DIRECTORY)%.sam=$(CHIMCT_OUTPUT_DIRECTORY)%-chimeras.csv)
+
+test:
+	echo $(CHIMCT_SAMS)
+
+chimCT: | $(CHIMCT_OUTPUT_DIRECTORY) $(CHIMCT_CSVS) 
+
+$(CHIMCT_OUTPUT_DIRECTORY): | $(CHIMERAS_DIRECTORY)
+	mkdir -p $@
+
+$(CHIMCT_CSVS): $(CHIMCT_SAMS)
+	$(CHIMCT_BINARY) -n $(notdir $(<:.sam=)) -g $(CHIMCT_GFF) -s $< > $@ 2> $(@:.csv=.log)
+
+
+# DEFINING NEW IMPLICIT RULES
+%.bam: %.sam
+	samtools view -Sub $< | samtools sort -@ 10 -m 2G - $*
+	samtools index $@
