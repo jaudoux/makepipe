@@ -1,0 +1,14 @@
+What we should do :
+
+- Provide a strandard organisation of workflows
+- Write workflows easily with a simple text editor
+- Read workflows easily, even biologist
+- Use pre-defined "blocks" in order to re-use a maximum of code among projects
+- Re-run analysis on demand, only when needed
+  - New software version "rerun in a separate folder"
+  - Data have changed => Rerun only steps that are upstream of these data
+- Easily share data with biologists
+- Tracability : For each set of files that come from the same processing we need a log file,
+  lets call it a "workstory" that describe what appenned to create the output and resume all
+  steps that leed to the input data used to generate this step.
+  Redondancy is no problem!!!
