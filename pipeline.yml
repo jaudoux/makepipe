@@ -1,0 +1,18 @@
+---
+core:
+  brick: CORE
+  config:
+    INDEX_DIRECTORY: /data/indexes
+crac:
+  brick: CRAC
+  config:
+    INDEX: /data/indexes/crac/GRCh37
+    OPTIONS: --stringent-chimera
+    KMER_LENGTH: 22
+    RAWS: raw/test1_1.fastq raw/test2_1.fastq
+chimCT:
+  brick: CHIMCT
+  config:
+    SAMS: $(crac_SAMS)
+    GFF: /data/annotations/human/ensembl.gff
+    INPUT_DIRECTORY: $(crac_OUTPUT_DIRECTORY)
