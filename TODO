@@ -1,0 +1,9 @@
+- [x] Each block should be represented as a single instance of a process, and the
+      fact that an instance of a block is run with multiple inputs should be
+      treated outside the score of the block
+- [ ] CRAC brick should be able to handle paired-end data
+- [ ] We should have a nice command-line tool that could gives the default parameters
+      of each break and help the user to build its pipeline
+- [ ] Find a better way to describe dependencies between BRICKS in the YAML config file
+      We should not use the Makefile variables, it shou
+- [ ]

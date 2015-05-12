@@ -2,7 +2,7 @@
 %%_SAMS							= undef
 %%_INPUT_DIRECTORY  = undef
 %%_GFF							= undef
-%%_SAM_EXTENSION		= sam
+%%_SAM_EXTENSION		= bam
 %%_BINARY						= chimCT
 %%_OUTPUT_DIRECTORY	=	$(core_CHIMERAS_DIRECTORY)/%%
 %%_SAMS_FILENAMES 	= $(basename $(notdir $(%%_SAMS)))
@@ -17,8 +17,6 @@
 	-rm $(%%_CSVS)
 	-rm -rf $(%%_OUTPUT_DIRECTORY) 
 
-$(%%_OUTPUT_DIRECTORY): | $(CHIMERAS_DIRECTORY)
-	mkdir -p $@
-
-$(%%_OUTPUT_DIRECTORY)/%$(%%_CSVS_EXTENSION): $(%%_INPUT_DIRECTORY)/%.$(%%_SAM_EXTENSION)  $(%%_OUTPUT_DIRECTORY)
+$(%%_OUTPUT_DIRECTORY)/%$(%%_CSVS_EXTENSION): $(%%_INPUT_DIRECTORY)/%.$(%%_SAM_EXTENSION) 
+	@mkdir -p $(%%_OUTPUT_DIRECTORY)
 	$(%%_BINARY) -n $(basename $(notdir $<)) -g $(%%_GFF) -s $< $(%%_OPTIONS) > $@ 2> $(@:.csv=.log)

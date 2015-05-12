@@ -6,10 +6,25 @@ core:
 crac:
   brick: CRAC
   config:
-    INDEX: /data/indexes/crac/GRCh37
-    OPTIONS: --stringent-chimera
+    INDEX: /data/indexes/crac/GRCh38
+    OPTIONS: --no-ambiguity
     KMER_LENGTH: 22
-    RAWS: raw/test1_1.fastq raw/test2_1.fastq
+    READS_DIRECTORY: raw
+    READS_EXTENSION: .fastq
+    SAMPLES: test1 test2
+    PAIRED_END_READS: true
+    BINARY: /data/projects/crac-dev/src/crac
+    #RAWS: raw/test1_1.fastq raw/test2_1.fastq
+counts:
+  brick: FEATURECOUNTS
+  config:
+    ANNOTATION_FILE: /data/annotations/human/Homo_sapiens.GRCh38.77.gtf
+    INPUT_ALIGNMENTS: $(crac_SAMS)
+cractools:
+  brick: CRACTOOLS_EXTRACT
+  config:
+    SAMPLES: $(crac_SAMPLES)
+    ALIGNMENTS_DIRECTORY: $(crac_OUTPUT_DIRECTORY)
 chimCT:
   brick: CHIMCT
   config:
