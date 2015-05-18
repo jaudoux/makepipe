@@ -1,33 +1,55 @@
 ---
-core:
-  brick: CORE
-  config:
-    INDEX_DIRECTORY: /data/indexes
+samples:
+  - name: test1 
+    type: TOTO
+  - name: test2 
+    type: TATA
+#core:
+#  brick: CORE
+#  config:
+#    INDEX_DIRECTORY: /data/indexes
 crac:
   brick: CRAC
   config:
     INDEX: /data/indexes/crac/GRCh38
+    BINARY: /data/projects/crac-dev/src/crac
     OPTIONS: --no-ambiguity
     KMER_LENGTH: 22
-    READS_DIRECTORY: raw
-    READS_EXTENSION: .fastq
-    SAMPLES: test1 test2
-    PAIRED_END_READS: true
-    BINARY: /data/projects/crac-dev/src/crac
-    #RAWS: raw/test1_1.fastq raw/test2_1.fastq
+    READS: "raw/{{item.name}}_1.fastq raw/{{item.name}}_2.fastq"
+    OUTPUT: "mapping/crac/{{item.name}}.bam"
+    #READS: 
+    #  - "raw/{{item.name}}_1.fastq"
+    #  - "raw/{{item.name}}_2.fastq"
+    #OUTPUT: "mapping/crac-{{crac.version}}/{{item.name}}.bam"
+  loop: 
+    list: samples
+    summarize: 
+      - from: "{{this.OUTPUT}}"
+        to: item.sam_file
+
+#cractools:
+#  brick: CRACTOOLS_EXTRACT
+#  config:
+#    SAM_FILE: "{{item.sam_file}}"
+#    CHIMERA_OUTPUT: "chimeras/cractools/{{item.name}}-chimeras.tsv"
+#    SPLICE_OUTPUT: "splices/cractools/{{item.name}}-splice.bed"
+#    MUTATION_OUTPUT: "mutations/cractools/{{item.name}}.vcf"
+#  loop: 
+#    list: "{{samples}}"
+#    summarize: "{{item.chimeras = CHIMERA_OUTPUT, item.splices = SPLICE_OUTPUT, item.mutations = MUTATION_OUTPUT}}"
+#
 counts:
   brick: FEATURECOUNTS
   config:
     ANNOTATION_FILE: /data/annotations/human/Homo_sapiens.GRCh38.77.gtf
-    INPUT_ALIGNMENTS: $(crac_SAMS)
-cractools:
-  brick: CRACTOOLS_EXTRACT
-  config:
-    SAMPLES: $(crac_SAMPLES)
-    ALIGNMENTS_DIRECTORY: $(crac_OUTPUT_DIRECTORY)
-chimCT:
-  brick: CHIMCT
-  config:
-    SAMS: $(crac_SAMS)
-    GFF: /data/annotations/human/ensembl.gff
-    INPUT_DIRECTORY: $(crac_OUTPUT_DIRECTORY)
+    INPUT_ALIGNMENTS: "{{samples.extract('sam_file')}}"
+#
+#
+#chimCT:
+#  brick: CHIMCT
+#  config:
+#    SAMS: "{{item.sam_file}}"
+#    GFF: /data/annotations/human/ensembl.gff
+#  loop:
+#    list: "{{samples}}"
+#    summarize: "{{item.chimct_file = OUTPUT_FILE}}

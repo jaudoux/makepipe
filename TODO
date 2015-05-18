@@ -6,4 +6,8 @@
       of each break and help the user to build its pipeline
 - [ ] Find a better way to describe dependencies between BRICKS in the YAML config file
       We should not use the Makefile variables, it shou
-- [ ]
+- [ ] Change "summarize" key word, it is not very accurate
+- [ ] Find a way to nicely handle multi-threaded jobs so they can be executed in a no-concurency mode since they already take more than 1 process to run
+- [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
+- [ ] Simplify output Makefile :
+      - If rules or variables are equal between all iterations of a process, we could only use on definition!!!
