@@ -1,0 +1,159 @@
+Common subdirectories: make-4.1-orig/config and make-4.1/config
+Common subdirectories: make-4.1-orig/doc and make-4.1/doc
+diff -u make-4.1-orig/file.c make-4.1/file.c
+--- make-4.1-orig/file.c	2006-05-18 11:04:37.000000000 -0700
++++ make-4.1/file.c	2006-05-18 11:11:16.000000000 -0700
+@@ -738,6 +738,23 @@
+   if (f != 0 && f->is_target)
+     not_parallel = 1;
+ 
++  for (f = lookup_file (".SERIAL"); f != 0; f = f->prev)
++    {
++      /* .SERIAL with deps listed
++	 marks those deps as targets that should not be built
++	 in parallel with other files, no matter what the -j
++	 setting. */
++      if (f->deps)
++        for (d = f->deps; d != 0; d = d->next)
++          for (f2 = d->file; f2 != 0; f2 = f2->prev)
++            f2->serial = 1;
++      /* .SERIAL with no deps listed marks *all* files that way,
++	 and is equivalent to .NOTPARALLEL. */
++      else
++          not_parallel = 1;
++    }
++
++
+ #ifndef NO_MINUS_C_MINUS_O
+   /* If .POSIX was defined, remove OUTPUT_OPTION to comply.  */
+   /* This needs more work: what if the user sets this in the makefile?
+diff -u make-4.1-orig/filedef.h make-4.1/filedef.h
+--- make-4.1-orig/filedef.h	2006-05-18 11:04:37.000000000 -0700
++++ make-4.1/filedef.h	2006-05-18 11:08:06.000000000 -0700
+@@ -94,6 +94,8 @@
+                                    pattern-specific variables.  */
+     unsigned int considered:1;  /* equal to 'considered' if file has been
+                                    considered on current scan of goal chain */
++    unsigned int serial:1;      /* Nonzero if the file can't be built in
++                                   parallel with others. */
+   };
+ 
+ 
+Common subdirectories: make-4.1-orig/glob and make-4.1/glob
+diff -u make-4.1-orig/job.c make-4.1/job.c
+--- make-4.1-orig/job.c	2006-05-18 11:04:37.000000000 -0700
++++ make-4.1/job.c	2006-05-18 15:26:23.000000000 -0700
+@@ -218,6 +218,10 @@
+ 
+ static struct child *waiting_jobs = 0;
+ 
++/* Chain of serial jobs waiting completion of parallel jobs. */
++
++static struct child *waiting_serial_jobs = 0;
++
+ /* Non-zero if we use a *real* shell (always so on Unix).  */
+ 
+ int unixy_shell = 1;
+@@ -1415,7 +1419,9 @@
+ 
+ /* Try to start a child running.
+    Returns nonzero if the child was started (and maybe finished), or zero if
+-   the load was too high and the child was put on the `waiting_jobs' chain.  */
++   the child was put on a waiting chain (`waiting_jobs' if the load was too
++   high, or `waiting_serial_jobs' if the job was serial and should wait for
++   others to complete).  */
+ 
+ static int
+ start_waiting_job (struct child *c)
+@@ -1429,19 +1435,26 @@
+   c->remote = start_remote_job_p (1);
+ 
+   /* If we are running at least one job already and the load average
+-     is too high, make this one wait.  */
++     is too high, make this one wait. If the job is serial and there is a job
++     running, also make it wait. */
+   if (!c->remote
+-      && ((job_slots_used > 0 && load_too_high ())
++      && ((job_slots_used > 0 && (load_too_high () || f->serial))
+ #ifdef WINDOWS32
+ 	  || (process_used_slots () >= MAXIMUM_WAIT_OBJECTS)
+ #endif
+ 	  ))
+     {
+       /* Put this child on the chain of children waiting for the load average
+-         to go down.  */
++         or job numbers to go down.  */
+       set_command_state (f, cs_running);
+-      c->next = waiting_jobs;
+-      waiting_jobs = c;
++      if(f->serial) {
++          c->next = waiting_serial_jobs;
++          waiting_serial_jobs = c;
++      }
++      else {
++          c->next = waiting_jobs;
++          waiting_jobs = c;
++      }
+       return 0;
+     }
+ 
+@@ -1459,6 +1472,12 @@
+       /* One more job slot is in use.  */
+       ++job_slots_used;
+       unblock_sigs ();
++
++      /* Wait for completion if the job is serial. */
++      if(f->serial)
++        while (f->command_state == cs_running)
++          reap_children (1, 0);
++
+       break;
+ 
+     case cs_not_started:
+@@ -1862,14 +1881,15 @@
+ #endif
+ }
+ 
+-/* Start jobs that are waiting for the load to be lower.  */
++/* Start jobs that are waiting for the load to be lower or for parallel
++   jobs to finish.  */
+ 
+ void
+ start_waiting_jobs (void)
+ {
+   struct child *job;
+ 
+-  if (waiting_jobs == 0)
++  if (waiting_jobs == 0 && waiting_serial_jobs == 0)
+     return;
+ 
+   do
+@@ -1878,13 +1898,22 @@
+       reap_children (0, 0);
+ 
+       /* Take a job off the waiting list.  */
+-      job = waiting_jobs;
+-      waiting_jobs = job->next;
++      if(waiting_jobs)
++      {
++        job = waiting_jobs;
++        waiting_jobs = job->next;
++      }
++      else
++      {
++        job = waiting_serial_jobs;
++        waiting_serial_jobs = job->next;
++      }
+ 
+       /* Try to start that job.  We break out of the loop as soon
+ 	 as start_waiting_job puts one back on the waiting list.  */
+     }
+-  while (start_waiting_job (job) && waiting_jobs != 0);
++  while (start_waiting_job (job)
++          && (waiting_jobs != 0 || waiting_serial_jobs != 0));
+ 
+   return;
+ }
+Common subdirectories: make-4.1-orig/po and make-4.1/po
+Common subdirectories: make-4.1-orig/tests and make-4.1/tests
+Common subdirectories: make-4.1-orig/w32 and make-4.1/w32

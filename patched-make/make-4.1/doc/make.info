@@ -1,0 +1,200 @@
+This is make.info, produced by makeinfo version 5.2 from make.texi.
+
+This file documents the GNU 'make' utility, which determines
+automatically which pieces of a large program need to be recompiled, and
+issues the commands to recompile them.
+
+   This is Edition 0.73, last updated 18 May 2015, of 'The GNU Make
+Manual', for GNU 'make' version 4.1.
+
+   Copyright (C) 1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996,
+1997, 1998, 1999, 2000, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+2010, 2011, 2012, 2013, 2014 Free Software Foundation, Inc.
+
+     Permission is granted to copy, distribute and/or modify this
+     document under the terms of the GNU Free Documentation License,
+     Version 1.3 or any later version published by the Free Software
+     Foundation; with no Invariant Sections, with the Front-Cover Texts
+     being "A GNU Manual," and with the Back-Cover Texts as in (a)
+     below.  A copy of the license is included in the section entitled
+     "GNU Free Documentation License."
+
+     (a) The FSF's Back-Cover Text is: "You have the freedom to copy and
+     modify this GNU manual.  Buying copies from the FSF supports it in
+     developing GNU and promoting software freedom."
+INFO-DIR-SECTION Software development
+START-INFO-DIR-ENTRY
+* Make: (make).            Remake files automatically.
+END-INFO-DIR-ENTRY
+
+
+Indirect:
+make.info-1: 1339
+make.info-2: 305680
+
+Tag Table:
+(Indirect)
+Node: Top1339
+Node: Overview16109
+Node: Preparing17122
+Node: Reading18090
+Node: Bugs19017
+Node: Introduction20846
+Node: Rule Introduction22439
+Node: Simple Makefile24372
+Node: How Make Works28108
+Node: Variables Simplify30757
+Node: make Deduces32963
+Node: Combine By Prerequisite34696
+Node: Cleanup35725
+Node: Makefiles37143
+Node: Makefile Contents37979
+Node: Splitting Lines41152
+Node: Makefile Names42912
+Node: Include44519
+Ref: Include-Footnote-148263
+Node: MAKEFILES Variable48397
+Node: Remaking Makefiles49938
+Node: Overriding Makefiles54163
+Node: Reading Makefiles56191
+Node: Secondary Expansion59653
+Node: Rules67114
+Node: Rule Example69787
+Node: Rule Syntax70640
+Node: Prerequisite Types73235
+Node: Wildcards76102
+Node: Wildcard Examples77821
+Node: Wildcard Pitfall79171
+Node: Wildcard Function80960
+Node: Directory Search82744
+Node: General Search83879
+Node: Selective Search85586
+Node: Search Algorithm88576
+Node: Recipes/Search91094
+Node: Implicit/Search92417
+Node: Libraries/Search93359
+Node: Phony Targets95330
+Node: Force Targets100167
+Node: Empty Targets101204
+Node: Special Targets102506
+Node: Multiple Targets110379
+Node: Multiple Rules112239
+Node: Static Pattern114457
+Node: Static Usage115109
+Node: Static versus Implicit118828
+Node: Double-Colon120568
+Node: Automatic Prerequisites122328
+Node: Recipes126589
+Node: Recipe Syntax127761
+Node: Splitting Recipe Lines129876
+Node: Variables in Recipes133029
+Node: Echoing134355
+Node: Execution135630
+Ref: Execution-Footnote-1137043
+Node: One Shell137188
+Node: Choosing the Shell140503
+Node: Parallel144647
+Node: Parallel Output147316
+Node: Parallel Input151743
+Node: Errors152862
+Node: Interrupts156526
+Node: Recursion158109
+Node: MAKE Variable160206
+Node: Variables/Recursion162449
+Node: Options/Recursion167894
+Node: -w Option173912
+Node: Canned Recipes174907
+Node: Empty Recipes177890
+Node: Using Variables179038
+Node: Reference182466
+Node: Flavors184024
+Node: Advanced190003
+Node: Substitution Refs190508
+Node: Computed Names192061
+Node: Values196609
+Node: Setting197526
+Node: Appending200435
+Node: Override Directive204377
+Node: Multi-Line206004
+Node: Undefine Directive208828
+Node: Environment209917
+Node: Target-specific212169
+Node: Pattern-specific215196
+Node: Suppressing Inheritance217043
+Node: Special Variables218496
+Node: Conditionals224905
+Node: Conditional Example225618
+Node: Conditional Syntax228181
+Node: Testing Flags233938
+Node: Functions235039
+Node: Syntax of Functions236599
+Node: Text Functions238933
+Node: File Name Functions247498
+Node: Conditional Functions252724
+Node: Foreach Function255099
+Node: File Function258312
+Node: Call Function260390
+Node: Value Function263275
+Node: Eval Function264712
+Node: Origin Function266988
+Node: Flavor Function270214
+Node: Make Control Functions271258
+Node: Shell Function272944
+Node: Guile Function274577
+Node: Running275327
+Node: Makefile Arguments277308
+Node: Goals278024
+Node: Instead of Execution282763
+Node: Avoiding Compilation286478
+Node: Overriding288453
+Node: Testing290765
+Node: Options Summary292649
+Node: Implicit Rules305680
+Node: Using Implicit307817
+Node: Catalogue of Rules311336
+Node: Implicit Variables320680
+Node: Chained Rules325753
+Node: Pattern Rules329763
+Node: Pattern Intro331297
+Node: Pattern Examples333879
+Node: Automatic Variables335686
+Node: Pattern Match343036
+Node: Match-Anything Rules346359
+Node: Canceling Rules350238
+Node: Last Resort350952
+Node: Suffix Rules352781
+Node: Implicit Rule Search356506
+Node: Archives360005
+Node: Archive Members360710
+Node: Archive Update362320
+Node: Archive Symbols364231
+Node: Archive Pitfalls365464
+Node: Archive Suffix Rules366186
+Node: Extending make367734
+Node: Guile Integration368871
+Node: Guile Types370099
+Node: Guile Interface372519
+Node: Guile Example373805
+Node: Loading Objects375996
+Node: load Directive377486
+Node: Remaking Loaded Objects380240
+Node: Loaded Object API380874
+Node: Loaded Object Example387636
+Node: Features389883
+Node: Missing399050
+Node: Makefile Conventions402775
+Node: Makefile Basics403754
+Node: Utilities in Makefiles406921
+Node: Command Variables409420
+Node: DESTDIR412660
+Node: Directory Variables414827
+Node: Standard Targets430183
+Node: Install Command Categories444289
+Node: Quick Reference448815
+Node: Error Messages461520
+Node: Complex Makefile469416
+Node: GNU Free Documentation License478034
+Node: Concept Index503176
+Node: Name Index573962
+
+End Tag Table
