@@ -43,13 +43,12 @@ foreach my $process (keys %{$config}) {
   # if not we made a loop from the single process
   my $loop = $config->{$process}->{loop};
   my $loop_list = $loop->{list};
-  my $loop_summarize = $loop->{summarize};
   my @loop_items;
   if(defined $loop_list) {
     die "List $loop_list not found" if !defined $config->{$loop_list};
     my $i = 0;
     foreach my $item (@{$config->{$loop_list}}) {
-      push(@loop_items,{name => $process."_".$i, item => $item, summarize => $loop_summarize});
+      push(@loop_items,{name => $process."_".$i, item => $item, list => $loop_list, item_id => $i});
       $i++;
     }
   } else {
@@ -88,14 +87,21 @@ foreach my $process (keys %{$config}) {
         my $new_val = $config->{$process}->{config}->{$var};
         if(defined $new_val) {
           # If the value need to be interpreted (ie. with {{..}} formating)
-          $new_val = replaceVars($new_val,$config);
+          # TODO We should not directly insert replace the {{..}} formating by
+          # the value, but instead include a Makefile $(VARIABLE) that will do
+          # it for us.
+          #$new_val = replaceVars($new_val,$config);
+          $new_val = replaceItem($new_val,$process_iteration->{list},$process_iteration->{item_id});
           $value = $new_val;
         }
-        # Set the value assigned to $var for this process iteration
+        # Set the value assigned to $var for this process iteration this is
+        # the values that will be used by {{this.value}} expressions
         $process_variables{$var} = $value;
         # FIXME this should not be used anymore, no variable should be
         # interpreted by Makefiles
         $value =~ s/%%/$process_name/g;
+        ## We die if a given variable that was supposed to be defined has not been
+        # provided by the user
         die ("Undef value for variable $var in process $process") if $value eq 'undef';
         $vars .= $process_name."_"."$var = $value\n";
       } else {
@@ -114,11 +120,13 @@ foreach my $process (keys %{$config}) {
 
     # Treat summarization process that consists in saving some informations
     # about the current iteration to some datastructure
-    foreach my $summarize_item (@{$process_iteration->{summarize}}) {
-      die "You need to defined a value to be saved with the 'from' key word" unless defined $summarize_item->{from};
-      die "You need to defined a variable to save the value defined with the 'from' key word by using to 'to' key word" unless defined $summarize_item->{to};
-      my $from = replaceVars($summarize_item->{from},$config);
-      setValueToHash($config,$summarize_item->{to},$from);
+    foreach my $record_item (@{$loop->{record}}) {
+      # TODO We should not record the true value but the variable name and let Makefile
+      # do his job
+      die "You need to defined a value to be saved with the 'from' key word" unless defined $record_item->{value};
+      die "You need to defined a variable to save the value defined with the 'from' key word by using to 'to' key word" unless defined $record_item->{to};
+      my $from = replaceVars($record_item->{value},$config);
+      setValueToHash($config,$record_item->{to},$from);
     }
   }
 }
@@ -126,8 +134,9 @@ foreach my $process (keys %{$config}) {
 # Print "all:" rule
 print "\nall: ".join(" ", @all)."\n.PHONY: all\n\n";
 
-# Print vars
-print $vars;
+# Print vars and replace {{..}} expression with correct value
+# we need two pass form .extract() expressions
+print replaceVars(replaceVars($vars,$config),$config);
 
 # Print rules
 print $rules;
@@ -139,6 +148,16 @@ print "clean: ".join(" ",map { $_."_clean" } @clean),"\n";
 # TODO add rm
 
 #print Dumper($config);
+
+# given a string with {{item.X.Y.Z}} expression, replace item
+# with the appropriate list element.
+sub replaceItem {
+  my ($string, $list_name, $id) = @_;
+  print STDERR "Before replaceItem: $string\n";
+  $string =~ s/{{item\.([^}]*)}}/"{{$list_name.[$id].$1}}"/eg;
+  print STDERR "After replaceItem: $string\n";
+  return $string;
+}
 
 sub replaceVars {
   my ($string, $config) = @_;
@@ -154,9 +173,14 @@ sub getValueFromHash {
   my @split_key = split /\./, $keys;
   my $last_key = pop @split_key;
   foreach my $k (@split_key) {
-    #if($k =~ /^extract\(\S+\)$/) {
-    print STDERR "KEY: $k\n";
-    $h = $h->{$k};
+    # If key correspond to an array element instead of hash key
+    if($k =~ /^\[\d+\]$/) {
+      print STDERR "TOTO\n";
+      my ($index) = $k =~ /^\[(\d+)\]$/;
+      $h = $h->[$index];
+    } else {
+      $h = $h->{$k};
+    }
   }
   if($last_key =~ /extract/) {
     my ($sub_key) = $last_key =~ /^extract\(["\']?([^"\']*)["\']?\)$/;
@@ -168,8 +192,6 @@ sub getValueFromHash {
     return join(" ",@extracted_values);
   }else {
     $h->{$last_key} = $new_value if defined $new_value;
-    print STDERR "Keys: $keys\n";
-    print STDERR "New value: $new_value\n" if defined $new_value;
     return $h->{$last_key};
   }
 }
@@ -179,6 +201,4 @@ sub getValueFromHash {
 sub setValueToHash {
   getValueFromHash(@_);
 }
-
-## TODO implement a method to convert a {{ }} statement dynamically
 

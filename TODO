@@ -11,3 +11,4 @@
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
 - [ ] Simplify output Makefile :
       - If rules or variables are equal between all iterations of a process, we could only use on definition!!!
+- [ ] Add a "filter" function to select a subset of items in a list that match a given value

@@ -23,8 +23,8 @@ crac:
     #OUTPUT: "mapping/crac-{{crac.version}}/{{item.name}}.bam"
   loop: 
     list: samples
-    summarize: 
-      - from: "{{this.OUTPUT}}"
+    record: 
+      - value: "{{this.OUTPUT}}"
         to: item.sam_file
 
 #cractools:
