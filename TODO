@@ -1,14 +1,19 @@
 - [x] Each block should be represented as a single instance of a process, and the
       fact that an instance of a block is run with multiple inputs should be
       treated outside the score of the block
-- [ ] CRAC brick should be able to handle paired-end data
+- [x] CRAC brick should be able to handle paired-end data
 - [ ] We should have a nice command-line tool that could gives the default parameters
       of each break and help the user to build its pipeline
 - [ ] Find a better way to describe dependencies between BRICKS in the YAML config file
       We should not use the Makefile variables, it shou
-- [ ] Change "summarize" key word, it is not very accurate
+- [x] Change "summarize" key word, it is not very accurate
 - [ ] Find a way to nicely handle multi-threaded jobs so they can be executed in a no-concurency mode since they already take more than 1 process to run
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
-- [ ] Simplify output Makefile :
+- [x] Simplify output Makefile :
       - If rules or variables are equal between all iterations of a process, we could only use on definition!!!
+      - Use a variable as item id instead of a number
 - [ ] Add a "filter" function to select a subset of items in a list that match a given value
+- [ ] Add some kind of version ID to the pipeline in order to check prepare a new version comming of makepipe with a different syntax.
+- [ ] Number of threads should be define in the "core" brick
+- [ ] We should be able, not to specify output filenames to bricks
+- [ ]
