@@ -13,7 +13,8 @@
 %%: $(%%_OUTPUT_FILE) 
 
 %%_clean:
-	-rm $(%%_OUTPUT_FILE)
+	-rm $(basename $(%%_OUTPUT_FILE))*
+	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_OUTPUT_FILE))
 
 $(%%_OUTPUT_FILE): $(%%_SAM_FILE)
 	@mkdir -p $(dir $@)

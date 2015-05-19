@@ -16,6 +16,9 @@
 	-rm $(%%_MUTATION_OUTPUT)
 	-rm $(%%_SPLICE_OUTPUT)
 	-rm $(%%_CHIMERA_OUTPUT)
+	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_MUTATION_OUTPUT))
+	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_SPLICE_OUTPUT))
+	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_CHIMERA_OUTPUT))
 
 $(%%_MUTATION_OUTPUT): $(%%_SPLICE_OUTPUT)
 
