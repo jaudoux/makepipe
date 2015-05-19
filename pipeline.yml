@@ -1,6 +1,7 @@
 ---
 config:
   nb_threads: 4
+  genome_name: GRCh38
 samples:
   - name: test1 
     type: TOTO
@@ -14,7 +15,7 @@ crac:
   brick: CRAC
   execution: serial
   config:
-    INDEX: /data/indexes/crac/GRCh38
+    INDEX: "/data/indexes/crac/{{config.genome_name}}"
     BINARY: /data/projects/crac-dev/src/crac
     OPTIONS: --no-ambiguity
     KMER_LENGTH: 22

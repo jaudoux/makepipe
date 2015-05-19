@@ -2,18 +2,36 @@
       fact that an instance of a block is run with multiple inputs should be
       treated outside the score of the block
 - [x] CRAC brick should be able to handle paired-end data
+- [x] Change "summarize" key word, it is not very accurate
+      We have choose "export" instead
+- [x] Find a way to nicely handle multi-threaded jobs so they can be executed in a no-concurency mode since they already take more than 1 process to run
+      - I have patched make in order to introduce a .SERIAL: special target that force target to be
+      single threaded.
+      However I have not found a dynamic way to place this PRAGMA only when the user wants to by
+      specifying some kind of option in the YAML file
+- [x] Simplify output Makefile :
+      - [x] If rules or variables are equal between all iterations of a process, we could only use on definition!!!
+      - [x] Use a variable as item id instead of a number
+      - [ ] Could we do the same for rules???
+
+- [ ] Add a rule to all Makefile in order to first re-generate the makefile from the YAML file if it is more recent before running the pipeline
 - [ ] We should have a nice command-line tool that could gives the default parameters
       of each break and help the user to build its pipeline
 - [ ] Find a better way to describe dependencies between BRICKS in the YAML config file
       We should not use the Makefile variables, it shou
-- [x] Change "summarize" key word, it is not very accurate
-- [ ] Find a way to nicely handle multi-threaded jobs so they can be executed in a no-concurency mode since they already take more than 1 process to run
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
-- [x] Simplify output Makefile :
-      - If rules or variables are equal between all iterations of a process, we could only use on definition!!!
-      - Use a variable as item id instead of a number
 - [ ] Add a "filter" function to select a subset of items in a list that match a given value
 - [ ] Add some kind of version ID to the pipeline in order to check prepare a new version comming of makepipe with a different syntax.
 - [ ] Number of threads should be define in the "core" brick
 - [ ] We should be able, not to specify output filenames to bricks
-- [ ]
+- [ ] Add documentation to the binary
+- [ ] Create a specification format document for the YAML pipeline description
+- [ ] Create developer documentation for construction Makefile bricks
+- [ ] Find a way to cut the code in more pieces
+- [ ] Add an options that tell where to find brick elements
+- [ ] We should introduce some test cases for different purpose:
+      - Verify retro-compatibility of the system
+      - Verify that we can predict errors and not generate a corrupted Makefile
+- [ ] Introduce clean rules that aggregat all cleans of process iterations into
+      one single rule named with the process_name
+- [ ] Write a Vim plugin for our YAML syntax to be highligten better
