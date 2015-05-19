@@ -10,18 +10,6 @@
 %%_OPTIONS										= --coverless-splices # Options passed to CRACTOOLS_EXTRACT
 %%_BINARY											= cractools-extract # Binary used to call CRACTOOLS_EXTRACT
 
-#COMPUTED VARS
-#%%_SPLICES_OUTPUT_DIRECTORY 	= $(core_SPLICES_DIRECTORY)
-#%%_MUTATIONS_OUTPUT_DIRECTORY = $(core_MUTATIONS_DIRECTORY)
-#%%_CHIMERAS_OUTPUT_DIRECTORY 	= $(core_CHIMERAS_DIRECTORY)
-#%%_SPLICES_EXTENSION 					= -splices.bed
-#%%_MUTATIONS_EXTENSION				= .vcf
-#%%_CHIMERAS_EXTENSION					= -chimeras.tsv
-#%%_SAMPLE_NAME								= $(basename $(notdir $(%%_SAM_FILE)))
-#%%_CHIMERA_OUTPUT							= $(addprefix $(%%_CHIMERAS_OUTPUT_DIRECTORY)/, $(addsuffix $(%%_CHIMERAS_EXTENSION), $(%%_SAMPLE_NAME)))
-#%%_SPLICE_OUTPUT							= $(addprefix $(%%_SPLICES_OUTPUT_DIRECTORY)/, $(addsuffix $(%%_SPLICES_EXTENSION), $(%%_SAMPLE_NAME)))
-#%%_MUTATION_OUTPUT							= $(addprefix $(%%_MUTATIONS_OUTPUT_DIRECTORY)/, $(addsuffix $(%%_MUTATIONS_EXTENSION), $(%%_SAMPLE_NAME)))
-
 %%: $(%%_SPLICE_OUTPUT)
 
 %%_clean:

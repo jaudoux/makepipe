@@ -10,12 +10,6 @@
 %%_BINARY							= featureCounts # Binary used to run FEATURECOUNTS
 %%_OPTIONS						= # Options that can be specified to FEATURECOUNTS (run featurecounts -h for more informations
 
-#COMPUTED VARS
-
-#%%_OUTPUT_FILENAME 		= gene_counts.tsv
-#%%_OUTPUT_DIRECTORY 	=	$(core_QUANTIFICATION_DIRECTORY)/%%
-#%%_OUTPUT_FILE = $(addprefix $(%%_OUTPUT_DIRECTORY)/, $(%%_OUTPUT_FILENAME))
-
 %%: $(%%_OUTPUT_FILE)
 
 %%_clean:

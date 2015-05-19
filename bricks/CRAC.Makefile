@@ -18,21 +18,6 @@
 %%_OPTIONS += -i $(%%_INDEX) -k $(%%_KMER_LENGTH) --bam
 %%_OUTPUT_EXTENSION 	= $(suffix $(%%_OUTPUT_FILE))
 
-#%%_RAWS = undef
-#%%_READS_DIRECTORY 		= raw
-#%%_READS_EXTENSION 		= .fastq
-#%%_FIRST_PAIR_SUFFIX 	= _1
-#%%_SECOND_PAIR_SUFFIX	= _2
-#%%_OUTPUT_DIRECTORY 	=	$(core_MAPPING_DIRECTORY)/%%-$(%%_VERSION)
-#%%_OUTPUT_EXTENSION 	= .bam
-#%%_REMOVE_SAMS 				= false
-
-#OUTPUT VARS
-#%%_RAWS_FILENAMES = $(notdir $(%%_RAWS))
-#%%_SAMS 							= $(addprefix $(%%_OUTPUT_DIRECTORY)/, $(addsuffix $(%%_OUTPUT_EXTENSION), $(%%_SAMPLES)))
-
-#COMPUTED VARS
-
 .PHONY: %%
 %%: $(%%_OUTPUT_FILE)
 

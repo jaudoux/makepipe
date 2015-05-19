@@ -9,16 +9,16 @@
       single threaded.
       However I have not found a dynamic way to place this PRAGMA only when the user wants to by
       specifying some kind of option in the YAML file
+- [x] We should have a nice command-line tool that could gives the default parameters
+      of each break and help the user to build its pipeline
+- [x] Find a better way to describe dependencies between BRICKS in the YAML config file
+      We should not use the Makefile variables, it shou
 - [x] Simplify output Makefile :
       - [x] If rules or variables are equal between all iterations of a process, we could only use on definition!!!
       - [x] Use a variable as item id instead of a number
       - [ ] Could we do the same for rules???
 
 - [ ] Add a rule to all Makefile in order to first re-generate the makefile from the YAML file if it is more recent before running the pipeline
-- [ ] We should have a nice command-line tool that could gives the default parameters
-      of each break and help the user to build its pipeline
-- [ ] Find a better way to describe dependencies between BRICKS in the YAML config file
-      We should not use the Makefile variables, it shou
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
 - [ ] Add a "filter" function to select a subset of items in a list that match a given value
 - [ ] Add some kind of version ID to the pipeline in order to check prepare a new version comming of makepipe with a different syntax.

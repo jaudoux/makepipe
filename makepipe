@@ -298,7 +298,7 @@ sub parseMakefileCommentsToPod {
         $pod .= "\t$2\n";
       }
       $in_list = 0;
-    } elsif($_ =~ /^%%_(\S+)\s*=\s*([^\s*#]+)\s*#\s*(.*)/) {
+    } elsif($_ =~ /^%%_(\S+)\s*=\s*([^\s*#]*)\s*#\s*(.*)/) {
       #$2 =~ s/\s+$//; # trim
       $pod .= "\n=over\n" if !$in_list;
       $pod .= "\n=item B<$1> (Default: I<$2>)\n\n$3\n";
