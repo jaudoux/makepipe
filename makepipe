@@ -41,7 +41,7 @@ if($sub_command eq "help") {
   } else {
     # Print help message with all available bricks that are presents ins the bricks directory
     opendir(my $dh, $bricks_directory) or die ("Cannot opendir $bricks_directory");
-    my @brick_files = map {/^(\S+).Makefile$/} grep {/^(\S+).Makefile$/} readdir($dh);
+    my @brick_files = sort map {/^(\S+).Makefile$/} grep {/^(\S+).Makefile$/} readdir($dh);
     print STDERR "Specify a brick name to get information about it.\n";
     print STDERR "Availables bricks are:\n\t".join("\n\t",@brick_files)."\n";
   }
@@ -204,7 +204,14 @@ sub build {
   }
 
   # Print "all:" rule
-  print "\nall:\n\t".'$(MAKE) -j '."$nb_threads ".join(" ", @all)."\n.PHONY: all\n\n";
+  print "\nall: ".'$(lastword $(MAKEFILE_LIST))'."\n",
+    "\t".'$(MAKE) -j '."$nb_threads ".join(" ", @all)."\n",
+    ".PHONY: all\n\n";
+
+  # Print rule to re-generate the makefile if the pipeline has changed
+  print '$(lastword $(MAKEFILE_LIST))'.": $pipeline_config\n",
+    "\t$0 build ".'$< > $@'."\n\n";
+
 
   # Print vars and replace {{..}} expression with correct value
   # we need two pass form .extract() expressions

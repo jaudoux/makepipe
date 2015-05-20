@@ -1,3 +1,4 @@
+# MAKEPIPE CORE
 - [x] Each block should be represented as a single instance of a process, and the
       fact that an instance of a block is run with multiple inputs should be
       treated outside the score of the block
@@ -17,8 +18,8 @@
       - [x] If rules or variables are equal between all iterations of a process, we could only use on definition!!!
       - [x] Use a variable as item id instead of a number
       - [ ] Could we do the same for rules???
+- [x] Add a rule to all Makefile in order to first re-generate the makefile from the YAML file if it is more recent before running the pipeline
 
-- [ ] Add a rule to all Makefile in order to first re-generate the makefile from the YAML file if it is more recent before running the pipeline
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
 - [ ] Add a "filter" function to select a subset of items in a list that match a given value
 - [ ] Add some kind of version ID to the pipeline in order to check prepare a new version comming of makepipe with a different syntax.
@@ -35,3 +36,17 @@
 - [ ] Introduce clean rules that aggregat all cleans of process iterations into
       one single rule named with the process_name
 - [ ] Write a Vim plugin for our YAML syntax to be highligten better
+- [ ] Add a generic rule to remove empty directories
+- [ ] We could put bricks in sub-folder to have a sort of categorization for easier exploration
+- [ ] All bricks should be able to declare some kind of version id of the software they use
+- [ ] We should print a complete log file of the all pipeline that has been executed with dates, times, commands arguments and other cool things
+- [ ] Allow the possibility to place directly shell commands in the YAML file instead of using
+      a pre-defined brick
+
+
+# NEW BRICKS
+- [ ] Add a brick that generate rmarkdown reports
+- [ ] Annovar brick
+- [ ] Genome Simulator brick
+
+# BUGS
