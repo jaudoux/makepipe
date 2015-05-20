@@ -68,7 +68,7 @@ sub build {
 
   # Include "CORE" brick
   #unshift(@all,"core");
-  $config->{core}->{brick} = "CORE";
+  #$config->{core}->{brick} = "CORE";
 
   foreach my $process_name (keys %{$config}) {
     # Next if this is not a hash reference as we expect for a process description
@@ -204,9 +204,9 @@ sub build {
   }
 
   # Print "all:" rule
-  print "\nall: ".'$(lastword $(MAKEFILE_LIST))'."\n",
-    "\t".'$(MAKE) -j '."$nb_threads ".join(" ", @all)."\n",
-    ".PHONY: all\n\n";
+  print "\nall: ".'$(lastword $(MAKEFILE_LIST))'."\n";
+  print "\t".'$(MAKE) -j '."$nb_threads ".join(" ", @all)."\n" if @all;
+  print ".PHONY: all\n\n";
 
   # Print rule to re-generate the makefile if the pipeline has changed
   print '$(lastword $(MAKEFILE_LIST))'.": $pipeline_config\n",
