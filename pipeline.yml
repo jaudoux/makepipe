@@ -1,1 +1,73 @@
 ---
+config:
+  nb_threads: 4
+  genome_name: GRCh38
+samples:
+  - name: test1 
+    type: TOTO
+  - name: test2 
+    type: TATA
+#core:
+#  brick: CORE
+#  config:
+#    INDEX_DIRECTORY: /data/indexes
+crac:
+  brick: CRAC
+  execution: serial
+  config:
+    INDEX: "/data/indexes/crac/{{config.genome_name}}"
+    BINARY: /data/projects/crac-dev/src/crac
+    OPTIONS: --no-ambiguity
+    KMER_LENGTH: 22
+    READS: "raw/{{item.name}}_1.fastq raw/{{item.name}}_2.fastq"
+    OUTPUT_FILE: "mapping/crac/{{item.name}}.bam"
+    NB_THREADS: "{{config.nb_threads}}"
+    #READS: 
+    #  - "raw/{{item.name}}_1.fastq"
+    #  - "raw/{{item.name}}_2.fastq"
+    #OUTPUT: "mapping/crac-{{crac.version}}/{{item.name}}.bam"
+  loop: 
+    list: samples
+    id: name
+    export: 
+      - value: "{{this.OUTPUT_FILE}}"
+        to: item.sam_file
+
+cractools:
+  brick: CRACTOOLS_EXTRACT
+  config:
+    SAM_FILE: "{{item.sam_file}}"
+    CHIMERA_OUTPUT: "chimeras/cractools/{{item.name}}-chimeras.tsv"
+    SPLICE_OUTPUT: "splices/cractools/{{item.name}}-splice.bed"
+    MUTATION_OUTPUT: "mutations/cractools/{{item.name}}.vcf"
+  loop: 
+    list: samples
+    id: name
+    export: 
+      - value: "{{this.CHIMERA_OUTPUT}}"
+        to: tem.chimeras 
+      - value: "{{this.SPLICE_OUTPUT}}"
+        to: item.splices
+      - value: "{{this.MUTATION_OUTPUT}}"
+        to: item.mutations
+
+counts:
+  brick: FEATURECOUNTS
+  config:
+    ANNOTATION_FILE: /data/annotations/human/Homo_sapiens.GRCh38.77.gtf
+    INPUT_ALIGNMENTS: "{{samples.extract('sam_file')}}"
+    OUTPUT_FILE: "quantification/gene_counts.tsv"
+
+
+chimCT:
+  brick: CHIMCT
+  config:
+    SAM_FILE: "{{item.sam_file}}"
+    ANNOTATION_FILE: /data/annotations/human/ensembl.gff
+    OUTPUT_FILE: "chimeras/chimCT/{{item.name}}-chimeras.csv"
+  loop:
+    list: samples
+    id: name
+    export: 
+      - value: "{{this.OUTPUT_FILE}}"
+        to: item.chimct_file
