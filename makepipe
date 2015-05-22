@@ -3,6 +3,22 @@
 use strict;
 use warnings;
 
+=head1 NAME
+
+Makepipe - Create tricky Makefile pipelines from simple YAML configuration files.
+
+=head1 VERSION
+
+version 0.01
+
+=head1 AUTHORS
+
+=over 4
+
+=item Jerome AUDOUX <jaudoux@cpan.org>
+
+=back
+
 =head1 SYNOPSIS
 
   makepipe command [Arguments]
@@ -18,12 +34,13 @@ Available commands:
 
 use YAML::XS qw/LoadFile/;
 use Pod::Usage;
-use File::Temp qw/ tempfile /;
+use File::Temp qw/tempfile/;
+#use Getopt::Long;
 #use Data::Dumper;
 
 my $bricks_directory = 'bricks/';
 my $sub_command = shift @ARGV;
-pod2usage(-verbose => 0) if !defined $sub_command;
+pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
 
 if($sub_command eq "help") {
 
@@ -47,7 +64,7 @@ if($sub_command eq "help") {
   }
 } else {
   print STDERR "Undefined command : $sub_command\n";
-  pod2usage(-verbose => 1);
+  pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
 }
 
 #print STDERR Dumper($config);

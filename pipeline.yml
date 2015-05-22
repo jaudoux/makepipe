@@ -13,7 +13,7 @@ samples:
 #    INDEX_DIRECTORY: /data/indexes
 crac:
   brick: CRAC
-  execution: serial
+  #execution: serial
   config:
     INDEX: "/data/indexes/crac/{{config.genome_name}}"
     BINARY: /data/projects/crac-dev/src/crac
