@@ -48,5 +48,8 @@
 - [ ] Add a brick that generate rmarkdown reports
 - [ ] Annovar brick
 - [ ] Genome Simulator brick
+- [ ] Create a brick to filter reads
+- [ ] Create a generic brick to create symlinks
+- [ ] Create a brick to rename files
 
 # BUGS
