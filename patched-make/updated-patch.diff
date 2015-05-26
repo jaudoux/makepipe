@@ -1,9 +1,7 @@
-Common subdirectories: make-4.1-orig/config and make-4.1/config
-Common subdirectories: make-4.1-orig/doc and make-4.1/doc
-diff -u make-4.1-orig/file.c make-4.1/file.c
---- make-4.1-orig/file.c	2006-05-18 11:04:37.000000000 -0700
-+++ make-4.1/file.c	2006-05-18 11:11:16.000000000 -0700
-@@ -738,6 +738,23 @@
+diff -ur make-4.1-orig/file.c make-4.1/file.c
+--- make-4.1-orig/file.c	2015-05-20 16:36:58.392909495 +0200
++++ make-4.1/file.c	2015-05-20 16:36:58.476909399 +0200
+@@ -772,6 +772,23 @@
    if (f != 0 && f->is_target)
      not_parallel = 1;
  
@@ -27,9 +25,9 @@ diff -u make-4.1-orig/file.c make-4.1/file.c
  #ifndef NO_MINUS_C_MINUS_O
    /* If .POSIX was defined, remove OUTPUT_OPTION to comply.  */
    /* This needs more work: what if the user sets this in the makefile?
-diff -u make-4.1-orig/filedef.h make-4.1/filedef.h
---- make-4.1-orig/filedef.h	2006-05-18 11:04:37.000000000 -0700
-+++ make-4.1/filedef.h	2006-05-18 11:08:06.000000000 -0700
+diff -ur make-4.1-orig/filedef.h make-4.1/filedef.h
+--- make-4.1-orig/filedef.h	2015-05-20 16:36:58.392909495 +0200
++++ make-4.1/filedef.h	2015-05-20 16:36:58.476909399 +0200
 @@ -98,6 +98,8 @@
                                     pattern-specific variables.  */
      unsigned int considered:1;  /* equal to 'considered' if file has been
@@ -39,10 +37,9 @@ diff -u make-4.1-orig/filedef.h make-4.1/filedef.h
      unsigned int no_diag:1;     /* True if the file failed to update and no
                                     diagnostics has been issued (dontcare). */
    };
-Common subdirectories: make-4.1-orig/glob and make-4.1/glob
-diff -u make-4.1-orig/job.c make-4.1/job.c
---- make-4.1-orig/job.c	2006-05-18 11:04:37.000000000 -0700
-+++ make-4.1/job.c	2006-05-18 15:26:23.000000000 -0700
+diff -ur make-4.1-orig/job.c make-4.1/job.c
+--- make-4.1-orig/job.c	2015-05-20 16:36:58.396909490 +0200
++++ make-4.1/job.c	2015-05-20 16:36:58.484909390 +0200
 @@ -231,6 +231,10 @@
  
  static struct child *waiting_jobs = 0;
@@ -58,14 +55,14 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
  
  /* Try to start a child running.
     Returns nonzero if the child was started (and maybe finished), or zero if
--   the load was too high and the child was put on the `waiting_jobs' chain.  */
+-   the load was too high and the child was put on the 'waiting_jobs' chain.  */
 +   the child was put on a waiting chain (`waiting_jobs' if the load was too
 +   high, or `waiting_serial_jobs' if the job was serial and should wait for
 +   others to complete).  */
  
  static int
  start_waiting_job (struct child *c)
-@@ -1713,19 +1719,26 @@
+@@ -1709,19 +1715,26 @@
    c->remote = start_remote_job_p (1);
  
    /* If we are running at least one job already and the load average
@@ -76,9 +73,9 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
 -      && ((job_slots_used > 0 && load_too_high ())
 +      && ((job_slots_used > 0 && (load_too_high () || f->serial))
  #ifdef WINDOWS32
- 	  || (process_used_slots () >= MAXIMUM_WAIT_OBJECTS)
+           || (process_used_slots () >= MAXIMUM_WAIT_OBJECTS)
  #endif
- 	  ))
+           ))
      {
        /* Put this child on the chain of children waiting for the load average
 -         to go down.  */
@@ -97,7 +94,7 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
        return 0;
      }
  
-@@ -1743,6 +1756,12 @@
+@@ -1739,6 +1752,12 @@
        /* One more job slot is in use.  */
        ++job_slots_used;
        unblock_sigs ();
@@ -110,7 +107,7 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
        break;
  
      case cs_not_started:
-@@ -2211,14 +2230,15 @@
+@@ -2201,14 +2220,15 @@
  #endif
  }
  
@@ -128,7 +125,7 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
      return;
  
    do
-@@ -2228,13 +2248,22 @@
+@@ -2217,13 +2237,22 @@
        reap_children (0, 0);
  
        /* Take a job off the waiting list.  */
@@ -146,7 +143,7 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
 +      }
  
        /* Try to start that job.  We break out of the loop as soon
- 	 as start_waiting_job puts one back on the waiting list.  */
+          as start_waiting_job puts one back on the waiting list.  */
      }
 -  while (start_waiting_job (job) && waiting_jobs != 0);
 +  while (start_waiting_job (job)
@@ -154,6 +151,4 @@ diff -u make-4.1-orig/job.c make-4.1/job.c
  
    return;
  }
-Common subdirectories: make-4.1-orig/po and make-4.1/po
-Common subdirectories: make-4.1-orig/tests and make-4.1/tests
-Common subdirectories: make-4.1-orig/w32 and make-4.1/w32
+Seulement dans make-4.1-orig/tests: config-flags.pm
