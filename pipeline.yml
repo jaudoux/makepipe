@@ -20,7 +20,7 @@ crac:
     OPTIONS: --no-ambiguity
     KMER_LENGTH: 22
     READS: "raw/{{item.name}}_1.fastq raw/{{item.name}}_2.fastq"
-    OUTPUT_FILE: "mapping/crac/{{item.name}}.bam"
+    OUTPUT_PREFIX: "mapping/crac/{{item.name}}"
     NB_THREADS: "{{config.nb_threads}}"
     #READS: 
     #  - "raw/{{item.name}}_1.fastq"

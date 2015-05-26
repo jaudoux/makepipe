@@ -9,7 +9,7 @@ Makepipe - Create tricky Makefile pipelines from simple YAML configuration files
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 AUTHORS
 
@@ -34,7 +34,8 @@ Available commands:
 
 use YAML::XS qw/LoadFile/;
 use Pod::Usage;
-use File::Temp qw/tempfile/;
+use File::Temp qw/tempfile tempdir/;
+use File::Basename;
 #use Getopt::Long;
 #use Data::Dumper;
 
@@ -62,6 +63,11 @@ if($sub_command eq "help") {
     print STDERR "Specify a brick name to get information about it.\n";
     print STDERR "Availables bricks are:\n\t".join("\n\t",@brick_files)."\n";
   }
+} elsif($sub_command eq "diff") {
+  my $tarball = shift @ARGV;
+  my $dir = tempdir();
+  system("tar -xzf $tarball -C $dir");
+  system("diff -ur $dir ".dirname($0));
 } else {
   print STDERR "Undefined command : $sub_command\n";
   pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
@@ -116,6 +122,7 @@ sub build {
     my $i = 0;
     # Store variable that are common to all process iterations
     my %common_variables;
+    my %process_specific_variables;
     # We create a new instance of the brick for as many iterations as we need
     foreach my $process_iteration (@loop_items) {
 
@@ -135,6 +142,8 @@ sub build {
       open (my $fh,$brick_file) or die ("Cannot open $brick_file");
       $vars .= "# Process: $process_iteration_name, constructed from BRICK $brick\n";
       $rules .= "# Process: $process_iteration_name, constructed from BRICK $brick\n";
+      my $tmp = ""; # temp buffer used when we do not know if we should place code in vars or rules
+      my $prev_statement = \$vars; # Hold a reference to the previously used buffer
 
       my $append_vars = "";
 
@@ -149,6 +158,14 @@ sub build {
         next if $_ =~ /^#/;
         # Skip blank lines
         next if $_ =~ /^\s*$/;
+        if($_ =~ /^ifeq/) {
+          $_ = replaceMakefileGenericVariables($_,$process_name,\%common_variables,$process_iteration_name);
+          $tmp .= $_;
+          next;
+        } elsif($_ =~ /^endif/) {
+          ${$prev_statement} .= $_;
+          next;
+        }
         #my($var,$value) = $_ =~ /^%%_(\S+)\s*=\s*(.*)$/;
         # Regex to grep generic variable definitions
         my($var,$op,$value) = $_ =~ /^%%_(\S+)\s*(\+?=)\s*(.*)$/;
@@ -166,28 +183,39 @@ sub build {
             $value = replaceItem($new_val,$process_iteration->{list},$process_iteration->{item_id});
             $replaced_item = 1 if $new_val ne $value;
           }
-          # Set the value assigned to $var for this process iteration this is
-          # the values that will be used by {{this.value}} expressions
-          $process_variables{$var} = $value;
 
           # if $value is equal to $new_val, then we don't have to define a special
           # variable for this process iteration, we can only do it once
           # FIXME we should double-pass this step in cas a generic variable is define after
           # its first use. In that cas it will not be stored in the %process_variables hash
           # and we do not no what namespace to use "process_name" or "process_iteration_name"
+
+          # FIXME Maybe we should do that at the end??? because it is possible that
+          # the value uses a variable that is process-specific and not declared yet
           $value = replaceMakefileGenericVariables($value,$process_name,\%common_variables,$process_iteration_name);
 
+          # Set the value assigned to $var for this process iteration this is
+          # the values that will be used by {{this.value}} expressions
+          $process_variables{$var} = $value;
+          
+          # If the value uses a variable that is process specific, then this variable
+          # is also process-specific
+          $replaced_item = 1 if foundVariable($value,keys %process_specific_variables);
+
           if($replaced_item) {
-            $append_vars .= $process_iteration_name."_"."$var $op $value\n";
+            $append_vars .= $tmp.$process_iteration_name."_"."$var $op $value\n";
+            $prev_statement = \$append_vars;
+            $process_specific_variables{$var} = $process_iteration_name;
           } else {
             $common_variables{$var} = $process_iteration_name if !defined $common_variables{$var};
-            $vars .= $process_name."_"."$var $op $value\n" if $common_variables{$var} eq $process_iteration_name;
+            $vars .= $tmp.$process_name."_"."$var $op $value\n" if $common_variables{$var} eq $process_iteration_name;
+            $prev_statement = \$vars;
           }
 
           #$value =~ s/%%/$process_iteration_name/g;
           ## We die if a given variable that was supposed to be defined has not been
           # provided by the user
-          die ("Undef value for variable $var in process $process_name") if $value eq 'undef';
+          die ("Undef value for variable $var in process $process_name") if $value =~ /^undef/;
           # Append the variable to the string containing the variables
           #$vars .= $process_iteration_name."_"."$var = $value\n";
         } else {
@@ -198,8 +226,10 @@ sub build {
           push @clean, $process_iteration_name if($_ =~ /^%%_clean:/);
           #$_ =~ s/%%/$process_iteration_name/g;
           $_ = replaceMakefileGenericVariables($_,$process_name,\%common_variables,$process_iteration_name);
-          $rules .= $_;
+          $rules .= $tmp.$_;
+          $prev_statement = \$rules;
         } 
+        $tmp = ""; # Reset temp buffer
       }
       # Append a new line to variables and rules strings
       $vars .= "\n$append_vars\n";
@@ -242,6 +272,15 @@ sub build {
 
   # TODO add rm
   #print Dumper($config);
+}
+
+# return true if one of the variable in argument is find in the string
+sub foundVariable {
+  my ($string,@variables) = @_;
+  foreach my $var (@variables) {
+    return 1 if($string =~ $var);
+  }
+  return 0;
 }
 
 # given a string with {{item.X.Y.Z}} expression, replace item
