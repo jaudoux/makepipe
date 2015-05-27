@@ -84,8 +84,8 @@ sub build {
   # Variables definition
   my @all = ();
   my @clean = ();
-  my $nb_threads = $config->{config}->{nb_threads};
-  $nb_threads = 1 unless defined $nb_threads;
+  my $nb_jobs = $config->{config}->{nb_jobs};
+  $nb_jobs = 1 unless defined $nb_jobs;
   my $vars = "##############################\n#          VARIABLES         #\n##############################\n\n";
   my $rules = "##############################\n#            RULES           #\n##############################\n\n";
 
@@ -252,7 +252,7 @@ sub build {
 
   # Print "all:" rule
   print "\nall: ".'$(lastword $(MAKEFILE_LIST))'."\n";
-  print "\t".'$(MAKE) -j '."$nb_threads ".join(" ", @all)."\n" if @all;
+  print "\t".'$(MAKE) -j '."$nb_jobs ".join(" ", @all)."\n" if @all;
   print ".PHONY: all\n\n";
 
   # Print rule to re-generate the makefile if the pipeline has changed
