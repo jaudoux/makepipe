@@ -37,9 +37,9 @@ cractools:
   brick: CRACTOOLS_EXTRACT
   config:
     SAM_FILE: "{{item.sam_file}}"
-    CHIMERA_OUTPUT: "chimeras/cractools/{{item.name}}-chimeras.tsv"
-    SPLICE_OUTPUT: "splices/cractools/{{item.name}}-splice.bed"
-    MUTATION_OUTPUT: "mutations/cractools/{{item.name}}.vcf"
+    CHIMERA_OUTPUT_PREFIX: "chimeras/cractools/{{item.name}}"
+    SPLICE_OUTPUT_PREFIX: "splices/cractools/{{item.name}}"
+    MUTATION_OUTPUT_PREFIX: "mutations/cractools/{{item.name}}"
   loop: 
     list: samples
     id: name
