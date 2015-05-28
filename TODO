@@ -42,6 +42,14 @@
 - [ ] We should print a complete log file of the all pipeline that has been executed with dates, times, commands arguments and other cool things
 - [ ] Allow the possibility to place directly shell commands in the YAML file instead of using
       a pre-defined brick
+      - This could be done by introduction a brick call GENERIC that have three variables :
+          - INPUT_FILE(s)
+          - OUTOUT_FILE(s)
+          - COMMAND
+        And defines a simple rule that take an input file and produce an output file using a command.
+        This should be generic enough to do a lot of things
+- [ ] Place .SERIAL rule as an option for CRAC and CRACTOOLS_EXTRACT
+- [ ] Implement some kind of if/else statment in {{..}} syntax
 
 
 # NEW BRICKS
@@ -51,5 +59,6 @@
 - [ ] Create a brick to filter reads
 - [ ] Create a generic brick to create symlinks
 - [ ] Create a brick to rename files
+- [ ] Generic brick (see before)
 
 # BUGS
