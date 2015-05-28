@@ -27,6 +27,7 @@
 ## COMPUTED VARS
 %%_VERSION 						= $(shell $(%%_BINARY) -v | head -1 | cut -d " " -f 3) # Crac version
 %%_OPTIONS += -i $(%%_INDEX) -k $(%%_KMER_LENGTH) --bam --nb-tags-info-stored 10000 # Crac Options
+%%_PRODUCED_FILES = $(%%_OUTPUT_FILE) $(%%_SUMMARY_FILE) $(%%_LOG_FILE)
 
 
 %%_PIPE_COMMANDS = > $(%%_OUTPUT_FILE)
@@ -34,6 +35,7 @@ ifeq ($(%%_SORT_BAM),true)
 %%_PIPE_COMMANDS = | samtools sort $(%%_SAMTOOLS_OPTIONS) - $(%%_OUTPUT_PREFIX)
 ifeq ($(%%_INDEX_BAM),true)
 %%_PIPE_COMMANDS += && samtools index $(%%_OUTPUT_FILE)
+%%_PRODUCED_FILES += $(%%_OUTPUT_PREFIX).bam.bai
 endif
 endif
 
@@ -42,7 +44,7 @@ endif
 %%: $(%%_OUTPUT_FILE)
 
 %%_clean:
-	-rm $(%%_OUTPUT_FILE) $(%%_SUMMARY_FILE) $(%%_LOG_FILE)
+	-rm $(%%_PRODUCED_FILES)
 	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_OUTPUT_FILE))
 
 $(%%_LOG_FILE) $(%%_SUMMARY_FILE): $(%%_OUTPUT_FILE)
