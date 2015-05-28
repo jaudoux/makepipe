@@ -293,6 +293,7 @@ sub replaceItem {
 
 sub replaceVars {
   my ($string, $config) = @_;
+  # FIXME Add a warning if the value does not exists
   $string =~ s/{{([^}]*)}}/getValueFromHash($config,$1)/eg;
   return $string;
 }
