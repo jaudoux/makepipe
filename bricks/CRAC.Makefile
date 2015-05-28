@@ -18,6 +18,7 @@
 ## OPTIONS
 %%_BINARY 						= crac# Binary to use for running CRAC
 %%_KMER_LENGTH 				= 22# Size of the k-mer used by CRAC
+%%_NB_THREADS					= 1# Number of threads allocated to the cractools binary
 %%_OPTIONS 						= # Options that can be specified to CRAC (run `crac -f` for more information) 
 %%_SORT_BAM						= true# If true, output bam will be piped to samtools for sorting
 %%_INDEX_BAM					= true# If true, sorted bam will be indexed by samtools to create a .bam.bai index file
@@ -41,7 +42,7 @@ endif
 %%: $(%%_OUTPUT_FILE)
 
 %%_clean:
-	-rm $(basename $(%%_OUTPUT_FILE))*
+	-rm $(%%_OUTPUT_FILE) $(%%_SUMMARY_FILE) $(%%_LOG_FILE)
 	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_OUTPUT_FILE))
 
 $(%%_LOG_FILE) $(%%_SUMMARY_FILE): $(%%_OUTPUT_FILE)
@@ -49,4 +50,4 @@ $(%%_LOG_FILE) $(%%_SUMMARY_FILE): $(%%_OUTPUT_FILE)
 .SERIAL: $(%%_OUTPUT_FILE)
 $(%%_OUTPUT_FILE): $(%%_READS)
 	mkdir -p $(dir $@)
-	$(%%_BINARY) $(%%_OPTIONS) -r $(wordlist 1, 2, $^) -o - --summary $(%%_SUMMARY_FILE) 2> $(%%_LOG_FILE) $(%%_PIPE_COMMANDS)
+	$(%%_BINARY) $(%%_OPTIONS) --nb-threads $(%%_NB_THREADS) -r $(wordlist 1, 2, $^) -o - --summary $(%%_SUMMARY_FILE) 2> $(%%_LOG_FILE) $(%%_PIPE_COMMANDS)
