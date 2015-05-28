@@ -1,7 +1,9 @@
 ---
 config:
   nb_threads: 4
+  nb_jobs: 2
   genome_name: GRCh38
+  counts: "quantification/gene_counts.tsv"
 samples:
   - name: test1 
     type: TOTO
@@ -40,6 +42,7 @@ cractools:
     CHIMERA_OUTPUT_PREFIX: "chimeras/cractools/{{item.name}}"
     SPLICE_OUTPUT_PREFIX: "splices/cractools/{{item.name}}"
     MUTATION_OUTPUT_PREFIX: "mutations/cractools/{{item.name}}"
+    NB_THREADS: "{{config.nb_threads}}"
   loop: 
     list: samples
     id: name
@@ -56,7 +59,8 @@ counts:
   config:
     ANNOTATION_FILE: /data/annotations/human/Homo_sapiens.GRCh38.77.gtf
     INPUT_ALIGNMENTS: "{{samples.extract('sam_file')}}"
-    OUTPUT_FILE: "quantification/gene_counts.tsv"
+    OUTPUT_FILE: "{{config.counts}}"
+  
 
 
 chimCT:
@@ -71,3 +75,18 @@ chimCT:
     export: 
       - value: "{{this.OUTPUT_FILE}}"
         to: item.chimct_file
+
+# CREATE a gziped file from the gene counts
+test:
+  brick: GENERIC
+  config:
+    INPUT_FILE: "{{config.counts}}"
+    OUTPUT_FILE: "{{config.counts}}.gz"
+    COMMAND_LINE: "gzip {{config.counts}} -c > {{config.counts}}.gz"
+
+# Print the first lines of the gene counts file
+test2:
+  brick: GENERIC
+  config:
+    INPUT_FILE: "{{config.counts}}"
+    COMMAND_LINE: "head {{config.counts}}"
