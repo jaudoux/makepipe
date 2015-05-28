@@ -19,6 +19,7 @@
 ## OPTIONS
 %%_OPTIONS								= --coverless-splices# Options passed to CRACTOOLS_EXTRACT
 %%_BINARY									= cractools-extract# Binary used to call CRACTOOLS_EXTRACT
+%%_NB_THREADS							= 1# Number of threads allocated to the cractools binary
 
 %%: $(%%_SPLICE_OUTPUT)
 
@@ -28,8 +29,9 @@
 
 $(%%_CHIMERA_OUTPUT) $(%%_MUTATION_OUTPUT): $(%%_SPLICE_OUTPUT)
 
+.SERIAL: $(%%_SPLICE_OUTPUT)
 $(%%_SPLICE_OUTPUT): $(%%_SAM_FILE)
 	@mkdir -p $(dir $(%%_CHIMERA_OUTPUT) $(%%_SPLICE_OUTPUT) $(%%_MUTATION_OUTPUT))
-	$(%%_BINARY) $(%%_OPTIONS) $< -s $@ -m $(%%_MUTATION_OUTPUT) -c $(%%_CHIMERA_OUTPUT)
+	$(%%_BINARY) $(%%_OPTIONS) -p $(%%_NB_THREADS) $< -s $@ -m $(%%_MUTATION_OUTPUT) -c $(%%_CHIMERA_OUTPUT)
 	@touch $(%%_MUTATION_OUTPUT)
 	@touch $(%%_CHIMERA_OUTPUT)
