@@ -27,6 +27,7 @@
           - COMMAND
         And defines a simple rule that take an input file and produce an output file using a command.
         This should be generic enough to do a lot of things
+- [x] "Export" should not be placed in loop statement but at the same level?
 
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
 - [ ] Add a "filter" function to select a subset of items in a list that match a given value
@@ -52,11 +53,23 @@
 - [ ] Place .SERIAL rule as an option for CRAC and CRACTOOLS_EXTRACT
       Maybe this could be automatically placed???
 - [ ] Implement some kind of if/else statment in {{..}} syntax
-- [ ] "Export" should not be placed in loop statement but at the same level?
 - [ ] Add an option to "build" subcommand to tell makepipe if we should place the
       auto-regen rules in the generate Makefile or not
 - [ ] Support Makefiles "import" commands
-
+- [ ] Create a binary that could be located in /data/bin that will either
+      - Execute the local makepipe binary found in the working directory
+      - Create a new makepipe project in the current folder by :
+        - Extracting the latest makepipe archive from gitlab
+        - Initiate a git repository with a special branch to store the makepipe
+          files (makepipe & bricks)
+        - We could also propose some kind of "Questions/Answer" interface that will
+          automatically create the YAML pipeline file:
+          ex : Where are located the raw reads?
+               Are those reads PE?
+               Do you want to map those read on a reference?
+                  - With wich software (crac, star, ....)
+                  - What reference do you want to use (GRCh38....)
+        ....
 
 # NEW BRICKS
 - [x] Generic brick (see before)

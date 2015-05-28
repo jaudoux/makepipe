@@ -31,9 +31,9 @@ crac:
   loop: 
     list: samples
     id: name
-    export: 
-      - value: "{{this.OUTPUT_FILE}}"
-        to: item.sam_file
+  export: 
+    - value: "{{this.OUTPUT_FILE}}"
+      to: item.sam_file
 
 cractools:
   brick: CRACTOOLS_EXTRACT

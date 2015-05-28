@@ -237,7 +237,7 @@ sub build {
 
       # Treat summarization process that consists in saving some informations
       # about the current iteration to some datastructure
-      foreach my $export_item (@{$loop->{export}}) {
+      foreach my $export_item (@{$loop->{export}}, @{$config->{$process_name}->{export}}) {
         # TODO We should not export the true value but the variable name and let Makefile
         # do his job
         die "You need to defined a value to be saved with the 'from' key word" unless defined $export_item->{value};
