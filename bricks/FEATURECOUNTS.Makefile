@@ -13,7 +13,7 @@
 %%: $(%%_OUTPUT_FILE)
 
 %%_clean:
-	-rm $(basename $(%%_OUTPUT_FILE))*
+	-rm $(%%_OUTPUT_FILE) $(%%_OUTPUT_FILE).summary
 	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_OUTPUT_FILE))
 
 $(%%_OUTPUT_FILE): $(%%_INPUT_ALIGNMENTS) $(%%_ANNOTATION_FILE)
