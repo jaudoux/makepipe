@@ -180,8 +180,10 @@ sub build {
             # TODO We should not directly insert replace the {{..}} formating by
             # the value, but instead include a Makefile $(VARIABLE) that will do
             # it for us.
+            # TODO we could remove replaceItem method and do the same thing that we 
+            # do for "this" instructions
             $value = replaceItem($new_val,$process_iteration->{list},$process_iteration->{item_id});
-            $replaced_item = 1 if $new_val ne $value;
+            $replaced_item = 1 if $new_val ne $value || $value =~ /{{this\./;
           }
 
           # if $value is equal to $new_val, then we don't have to define a special
@@ -234,6 +236,9 @@ sub build {
       # Append a new line to variables and rules strings
       $vars .= "\n$append_vars\n";
       $rules .= "\n";
+
+      # Replace {{this.}} variables before we go out of the scope of this process iteration
+      $vars = replaceVars($vars,$config,"this");
 
       # Treat summarization process that consists in saving some informations
       # about the current iteration to some datastructure
@@ -288,15 +293,14 @@ sub foundVariable {
 sub replaceItem {
   my ($string, $list_name, $id) = @_;
   $string =~ s/{{item/"{{$list_name.[$id]"/eg;
-  print STDERR $string,"\n";
-  #$string =~ s/{{($list_name\.[$id]\.)([^}]*)}}/"{{$1.$1}}"/eg;
   return $string;
 }
 
 sub replaceVars {
-  my ($string, $config) = @_;
+  my ($string, $config,$prefix) = @_;
+  $prefix = "" unless defined $prefix;
   # FIXME Add a warning if the value does not exists
-  $string =~ s/{{([^}]*)}}/getValueFromHash($config,$1)/eg;
+  $string =~ s/{{($prefix[^}]*)}}/getValueFromHash($config,$1)/eg;
   return $string;
 }
 
@@ -325,6 +329,10 @@ sub getValueFromHash {
 
 # Given a collection (hash or array) and a key return the next
 # value.
+# for example if k=[1], getNextValue will return $h->[1]
+# if k=test, getNextValue will return $h->{test}
+# if a value is provided in supplement, the value will also be set
+# before being returned
 sub getNextValue {
   my($h,$k,$v) = @_;
   if($k =~ /^\[\d+\]$/) {
