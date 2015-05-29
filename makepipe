@@ -287,7 +287,9 @@ sub foundVariable {
 # with the appropriate list element.
 sub replaceItem {
   my ($string, $list_name, $id) = @_;
-  $string =~ s/{{item\.([^}]*)}}/"{{$list_name.[$id].$1}}"/eg;
+  $string =~ s/{{item/"{{$list_name.[$id]"/eg;
+  print STDERR $string,"\n";
+  #$string =~ s/{{($list_name\.[$id]\.)([^}]*)}}/"{{$1.$1}}"/eg;
   return $string;
 }
 
@@ -306,12 +308,7 @@ sub getValueFromHash {
   my $last_key = pop @split_key;
   foreach my $k (@split_key) {
     # If key correspond to an array element instead of hash key
-    if($k =~ /^\[\d+\]$/) {
-      my ($index) = $k =~ /^\[(\d+)\]$/;
-      $h = $h->[$index];
-    } else {
-      $h = $h->{$k};
-    }
+    $h = getNextValue($h,$k);
   }
   if($last_key =~ /extract/) {
     my ($sub_key) = $last_key =~ /^extract\(["\']?([^"\']*)["\']?\)$/;
@@ -322,8 +319,21 @@ sub getValueFromHash {
     # TODO This shoud not be joined
     return join(" ",@extracted_values);
   }else {
-    $h->{$last_key} = $new_value if defined $new_value;
-    return $h->{$last_key};
+    return getNextValue($h,$last_key,$new_value);
+  }
+}
+
+# Given a collection (hash or array) and a key return the next
+# value.
+sub getNextValue {
+  my($h,$k,$v) = @_;
+  if($k =~ /^\[\d+\]$/) {
+    my ($index) = $k =~ /^\[(\d+)\]$/;
+    $h->[$index] = $v if defined $v;
+    return $h->[$index];
+  } else {
+    $h->{$k} = $v if defined $v;
+    return $h->{$k};
   }
 }
 
