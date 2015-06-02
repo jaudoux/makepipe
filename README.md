@@ -22,7 +22,7 @@ a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
   * [Brick instances](#brick-instances)
   * [Bricks collection](#bricks-collection)
   * [Use YAML collections and variables](#use-yaml-collections-and-variables)
-  * [Loops](#Loops)
+  * [Loops](#loops)
   * [Collection functions](#collection-functions)
   * [Exporting](#exporting)
   * [EXAMPLE: RNA-Seq pipeline](#example-rna-seq-pipeline)
@@ -475,7 +475,7 @@ We can now use our brand new re-usable brick in a nice pipeline.
       config:
         LATEX_FILE: report.tex
 
-## Brick's built-in documentation
+## Bricks built-in documentation
 
 You can easily add some documentation to a brick that is parsed and shown to
 the user when `./makepipe brick MY_BRICK` is invoked.
