@@ -1,4 +1,6 @@
+<p align="center">
 ![MakePipe logo](img/makepipe-logo-small.png)
+</p>
 
 # INSTALLATION - SET-UP
 
