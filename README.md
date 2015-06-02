@@ -14,6 +14,23 @@ Create a pipeline with Makepipe is simple as hell, you just need to create a
 simple YAML description of the pipeline and we do the rest, that is generating
 a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
 
+# TABLE OF CONTENTS
+
+* [Installation, set-up](#installation-set-up)
+* [Writing YAML pipelines](#writing-yaml-pipelines)
+  * [Collection](#collections)
+  * [Brick instances](#brick-instances)
+  * [Bricks collection](#bricks-collection)
+  * [Use YAML collections and variables](#use-yaml-collections-and-variables)
+  * [Loops](#Loops)
+  * [Collection functions](#collection-functions)
+  * [Exporting](#exporting)
+  * [EXAMPLE: RNA-Seq pipeline](#example-rna-seq-pipeline)
+* [Creating a reusable Makefile brick](#creating-a-reusable-makefile-brick)
+  * [Principles](#principles)
+  * [The LaTeX example](#the-latex-example)
+  * [Bricks built-in documentation](#bricks-built-in-documentation)
+
 # INSTALLATION, SET-UP
 
 In order to use Makepipe to create a new pipeline project, first clone this
@@ -132,7 +149,7 @@ the test.txt file needed by brick2, then brick2 will cat the file to the
 standard output. If you call the pipeline a second time, only brick2 will be
 called this test.txt already exist.
 
-# Bricks collection
+## Bricks collection
 
 Until there, we have only declared instances of the GENERIC brick, but there is
 many others and you can even create a re-usable brick that you want.
