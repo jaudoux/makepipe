@@ -2,7 +2,19 @@
 ![MakePipe logo](img/makepipe-logo-small.png)
 </p>
 
-# INSTALLATION - SET-UP
+# DESCRIPTION
+
+Makepipe helps the creation of simple, yet sofisticated pipeline relying on
+Makefile technology without getting your hands dirty. It has been concepted to
+create collections of re-usable bricks that can be shared among multiple
+projects. It has very low dependancies (Perl core and make), and it is very
+quick to set-up.
+
+Create a pipeline with Makepipe is simple as hell, you just need to create a
+simple YAML description of the pipeline and we do the rest, that is generating
+a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
+
+# INSTALLATION, SET-UP
 
 In order to use Makepipe to create a new pipeline project, first clone this
 repository somewhere on you computer. Then use the `build.sh` script to
@@ -17,20 +29,6 @@ start writing the YAML pipeline config.
     cp /XXX/XXX/Makepipe-X.XXX.tar.gz .
     tar -xzf Makepie-X.XXX.tar.gz
     vi pipeline.yml
-
-# USER DOCUMENTATION
-
-Makepipe helps the creation of simple to sofisticated pipeline relying on
-Makefile technology without getting your hands dirty. It has been concepted to
-create collections of re-usable bricks that can be shared among multiple
-projects. It has very low dependancies (Perl core and make), and it is very
-quick to set-up.
-
-Create a pipeline with Makepipe is simple as hell, you just need to create a
-simple YAML description of the pipeline and we do the rest, that is generating
-a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
-
-First let see how to create this YAML pipeline.
 
 # WRITING YAML PIPELINES
 
@@ -134,7 +132,7 @@ the test.txt file needed by brick2, then brick2 will cat the file to the
 standard output. If you call the pipeline a second time, only brick2 will be
 called this test.txt already exist.
 
-## BRICKS COLLECTION
+# Bricks collection
 
 Until there, we have only declared instances of the GENERIC brick, but there is
 many others and you can even create a re-usable brick that you want.
@@ -321,7 +319,7 @@ brick1.
 
 Remind that you can export as many values as you want.
 
-## EXAMPLE: RNA-Seq pipeline - WIP
+## EXAMPLE: RNA-Seq pipeline
 
 In this example we will see how we can pull some bricks together in order to
 create a fully fonctionnal RNA-Seq pipeline with makepipe, CRAC and
@@ -382,9 +380,9 @@ FeatureCounts.
         INPUT_ALIGNMENTS: "{{samples.extract('sam_file')}}"
         OUTPUT_FILE: "quantification/gene_counts.tsv"
 
-# CREATING A REUSABLE MAKEFILE BRICK - WIP
+# CREATING A REUSABLE MAKEFILE BRICK
 
-## PRINCIPLES
+## Principles
 
 If you want to create to reusable bricks, create a new file under brick/
 directory with the name of your brick (in capslock by convention) and a
@@ -395,7 +393,7 @@ to the template with `%%`. The only mandatory thing that need to appear is a
 rule called `%%`. This is the rule that will be called for this brick in the
 generated Makfile.
 
-## THE LATEX EXAMPLE
+## The LaTeX example
 
 For exemple, let's create our first re-usable brick that will wrap the
 compilation of a latex file. Lets call it `LATEX_PDF.Makefile` :
@@ -460,7 +458,7 @@ We can now use our brand new re-usable brick in a nice pipeline.
       config:
         LATEX_FILE: report.tex
 
-## BRICK DOCUMENTATION
+## Brick's built-in documentation
 
 You can easily add some documentation to a brick that is parsed and shown to
 the user when `./makepipe brick MY_BRICK` is invoked.
