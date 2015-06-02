@@ -1,3 +1,5 @@
+![MakePipe logo](img/makepipe-logo-small.png)
+
 # INSTALLATION - SET-UP
 
 In order to use Makepipe to create a new pipeline project, first clone this
