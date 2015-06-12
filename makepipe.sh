@@ -1,12 +1,22 @@
 #!/bin/bash
 # Init & Create the makepipe in local directory
 
-# Check we have a git bare repository at $MAKEPIPE_REPOSITORY from env
-if [ -z $MAKEPIPE_REPOSITORY ]
+# Where is located the $MAKEPIPE_REPOSITORY if not defined from env
+if [ $GITREPOSITORY ]
 then
-	MAKEPIPE_REPOSITORY=/data/share/repository/makepipe
+	MAKEPIPE_REPOSITORY=$GITREPOSITORY/makepipe
+else
 	# define a local
+	MAKEPIPE_REPOSITORY=/data/share/repository/makepipe
 fi
+if [ ! -d $MAKEPIPE_REPOSITORY ]
+then
+	echo "There no repository at $MAKEPIPE_REPOSITORY"
+	echo "Check the environmental variable GITREPPOSITORY"
+	echo "or do makepipe init makepipe_repository"
+	exit 1
+fi
+
 # current patch
 pwd=$(pwd)
 
