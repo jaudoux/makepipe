@@ -315,13 +315,34 @@ sub getValueFromHash {
     $h = getNextValue($h,$k);
   }
   if($last_key =~ /extract/) {
-    my ($sub_key) = $last_key =~ /^extract\(["\']?([^"\']*)["\']?\)$/;
+    my ($args)  = $last_key =~ /^extract\((.*)\)$/;
+    my @args  = split(',',$args);
+    my @extract_keys;
+    my $sep = " ";
+    my $inside_sep = ",";
+    foreach my $arg (@args) {
+      my ($k, $v) = split("=",$arg);
+      if(defined $v) {
+        if($k eq 'sep') {
+          $sep = removeQuotes($v);
+        } elsif($k eq 'inside_sep') {
+          $inside_sep = removeQuotes($v);
+        }
+      } else {
+        push @extract_keys, removeQuotes($arg);
+      }
+    }
     my @extracted_values;
     foreach my $it (@{$h}) {
-      push @extracted_values, $it->{$sub_key};
+      my @local_values;
+      foreach my $k (@extract_keys) {
+        push @local_values, $it->{$k};
+      }
+      push @extracted_values, join($inside_sep,@local_values);
+      #push @extracted_values, $it->{$sub_key};
     }
     # TODO This shoud not be joined
-    return join(" ",@extracted_values);
+    return join($sep,@extracted_values);
   }else {
     return getNextValue($h,$last_key,$new_value);
   }
@@ -399,4 +420,10 @@ sub getBrickFile {
     die "brick $brick not found in bricks directory: $bricks_directory";
   }
   return $brick_file;
+}
+
+sub removeQuotes {
+  my $v = shift;
+  my ($unquoted_v) = $v =~ /^["\']?([^"\']*)["\']?$/;
+  return $unquoted_v;
 }

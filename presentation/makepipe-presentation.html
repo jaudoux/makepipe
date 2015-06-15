@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+![MakePipe logo](makepipe-logo-small.png)
+
+---
+# DESCRIPTION
+
+* Makepipe helps the creation of simple, yet sofisticated pipeline relying on
+Makefile technology without getting your hands dirty. 
+* It has been concepted to create collections of re-usable bricks that can be shared among multiple
+projects. 
+* It has very low dependancies (Perl core and make), and it is very
+quick to set-up.
+
+Create a pipeline with Makepipe is simple as hell, you just need to create a
+simple YAML description of the pipeline and we do the rest, that is generating
+a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
+
+---
+# TABLE OF CONTENTS
+
+* [Installation, set-up](#installation-set-up)
+* [Writing YAML pipelines](#writing-yaml-pipelines)
+  * [Collection](#collections)
+  * [Brick instances](#brick-instances)
+  * [Bricks collection](#bricks-collection)
+  * [Use YAML collections and variables](#use-yaml-collections-and-variables)
+  * [Loops](#loops)
+  * [Collection functions](#collection-functions)
+  * [Exporting](#exporting)
+  * [EXAMPLE: RNA-Seq pipeline](#example-rna-seq-pipeline)
+* [Creating a reusable Makefile brick](#creating-a-reusable-makefile-brick)
+  * [Principles](#principles)
+  * [The LaTeX example](#the-latex-example)
+  * [Bricks built-in documentation](#bricks-built-in-documentation)
+
+---
+
+# INSTALLATION, SET-UP
+
+In order to use Makepipe to create a new pipeline project, first clone this
+repository somewhere on you computer. Then use the `build.sh` script to
+generate a tarball that only packup thinks you need to deploy you project:
+
+```bash
+./build.sh # This will create a Makepipe-X.XXX.tar.gz tarball
+```
+
+Then all you need to do is unpack the tarball on your project directory and
+start writing the YAML pipeline config.
+
+```bash
+cd my_project
+cp /XXX/XXX/Makepipe-X.XXX.tar.gz .
+tar -xzf Makepipe-X.XXX.tar.gz
+vi pipeline.yml
+```
+
+---
+# WRITING YAML PIPELINES
+
+YAML is a syntax language used to describe data's in a human friendly way
+(unlike XML that is hard to write, impossible to read, and not that easy to
+parse. 
+
+In order to create your first pipeline, start by creating and empty YAML file,
+with an `.yml` extension.
+
+---
+## Collections
+
+A YAML document is made of collections, lets define our first collection that
+will hold our samples names
+
+```yaml
+---
+samples:
+  - name: test1
+  - name: test2
+```
+
+We can also add another collection that will hold some configuration variables
+
+```yaml
+---
+samples:
+  - name: test1
+  - name: test2
+config:
+  - genome: GRCh38
+  - reads_dir: raw_reads
+```
+
+---
+# Brick instances
+
+### My first brick instance
+
+You special collection that we call "brick instances" that will be interpreted by Makepipe in order to created
+process that will be exectued by the pipeline.
+
+```yaml
+my_first_brick: 
+  brick: GENERIC 
+  config: 
+    COMMAND_LINE: "ls"
+```
+
+If you generate a make file from this pipeline, you'll see that the process "my
+first brick" will be executed and print the results of `ls` on the standard
+output
+
+```terminal
+jaudoux@bricks $ ./makepipe build my_pipeline.yml > Makefile
+jaudoux@bricks $ make my_first_brick
+make[1]: Entering directory '/home/jaudoux/Dev/makepipe'
+ls
+bricks    Makefile  test.yml   makepipe
+make[1]: Leaving directory '/home/jaudoux/Dev/makepipe'make
+```
+
+---
+### Run only a given brick
+
+Makepipe has automatically place your block instance under the "all" rule, so
+it executed automatically when make is called without arguments. You can also
+specifically execute this block instance by running `make my_first_brick`.
+
+### Makepipe auto-regeneration
+
+When the Makefile if first generated, makepipe places a rule that will check if
+your YAML pipeline has been modified since the Makefile was generated in order
+te re-generate the Makefile before running it. In other word, do not care about
+running the `makepipe build`, once the Makefile is constructed the only command
+you need to do run is `make`.
+
+---
+### My first pipeline
+
+If we look at the man page of the GENERIC brick by typing `./makepipe brick
+GENERIC`, we can see that there is two other parameter that we can give to
+GENERIC : `INPUT_FILE` and `OUTPUT_FILE`.
+
+We can now create our first pipeline with two bricks that will be chained by IO
+files.
+
+
+```yaml
+brick1:
+  brick: GENERIC
+  config:
+    OUTPUT_FILE: test.txt
+    COMMAND_LINE: "ls > test.txt"
+brick2:
+  brick: GENERIC
+  config:
+    INPUT_FILE: test.txt
+    COMMAND_LINE: "cat test.txt"
+```
+
+Just like Makefiles link between rules are files.
+
+---
+## Bricks collection
+
+Until there, we have only declared instances of the GENERIC brick, but there is
+many others and you can even create a re-usable brick that you want.
+
+A brick is a pre-formated Makefile that delares some variables and
+define some rules.  When you instatiate a brick, the Makefile is read and
+variables are replaced, and integrated in the output Makefile. Each brick
+define its own variables, and you must read the brick documentation before
+creating an instance.
+
+The subcommand `brick` will list all available bricks that are located under
+the `bricks/` directory.
+
+    ./makepipe brick
+    Availables bricks are:
+      CHIMCT
+      CORE
+      CRAC
+      CRACTOOLS_EXTRACT
+      FEATURECOUNTS
+      GENERIC
+      GZIP
+
+---
+## Bricks collection (2)
+
+Then you can call the subcommand `brick` with the brick name as argument to get
+information about it. For example `./makepipe brick CRAC`.
+
+You'll see that some variables are automatically computed, some others have
+default values, but some might be required to create the brick instance. Those
+variables are assigned to the value "undef", meaning that you need to give a
+value for this variable under the "config" entry of the brick instance.
+
+A brick can be instiate multiple times like we have done with GENERIC brick in
+the previous example.
+
+---
+## Use YAML collections and variables {{..}}
+
+How can we use/access collections that we have declared?
+
+In Makepipe you can use a syntax inspired by the broadly known ["moustache
+syntax"](https://mustache.github.io), by placing the variable name you want to
+acces inside double braces tag.
+
+Because an example is always easier to understand than a bunch of litterall
+explainations, here's one:
+
+```yaml
+directory: /usr/bin
+list_bin:
+  brick: GENERIC
+  config:
+    COMMAND_LINE: "ls {{directory}}"
+```
+
+Remember to place all expressions that uses curly braces into quotes, otherwise
+it will be interpreted by YAML parser as a hash structure!
+
+
+---
+## Use YAML collections and variables {{..}} (2)
+The syntax can be extended to access variables that are stored in hash
+collections by using a dot as separator :
+
+```yaml
+config:
+  directory: /usr/bin
+  ls_command: ls
+list_bin:
+  brick: GENERIC
+  config:
+    COMMAND_LINE: "{{config.ls_command}} {{config.directory}}"
+```
+
+---
+## Loops
+
+Sometimes, you want to repeat a given process on multiples values, making some
+kind of loops over a brick instance. This is allowed in Makepipe by the `loop`
+keyword, that enable multiple iterations of a brick instance on an array
+collection.
+
+For example, if we want to list the content of multiple folders we can do the
+following brick delaration:
+
+```yaml
+folders:
+  - /usr
+  - /tmp
+  - /home
+list_folders:
+  brick: GENERIC
+  config:
+    COMMAND_LINE: "ls {{item}}"
+  loop:
+    list: folders 
+```
+
+At each iteration a special collection "item" can be used to get the current list item value.
+
+---
+## Loops (2)
+
+We can also use more complicated array collections, were each item is a hash:
+
+```yaml
+folders:
+  - name: "temporary"
+    url: /tmp
+  - name: "home"
+    url: /home
+list_folders:
+  brick: GENERIC
+  config:
+    COMMAND_LINE: "ls {{item.url}}"
+  loop:
+    list: folders 
+    id: name
+```
+
+We have set the loop id to "name" in order to have nice target names in the generated Makefile.
+This allows us to run the `list_folder` brick for only one of the list item :
+
+    > make list_folders_home
+
+This make call will only exectute the block for the /home directory.
+
+---
+## Collection functions
+
+The following functions can be applied on a collection :
+
+### extract()
+
+The extract function is able to extract the value of a given variabe in a collection
+of items. For example, we can use the previous example and provide a single rule
+that will list all the folders wil a single `ls` call :
+
+```yaml
+folders:
+  - name: "temporary"
+    url: /tmp
+  - name: "home"
+    url: /home
+list_folders:
+  brick: GENERIC
+  config:
+    COMMAND_LINE: "ls {{folders.extract('url')}}"
+```
+
+The Makefile generated from this YAML pipline will exectute the single command
+`ls /tmp /home`.
+
+---
+## Exporting
+
+Sometimes you want to save some variables that have been declared in a brick
+and store it in a collection. This is allowed by the "export" keyword.
+
+```yaml
+folders:
+  - name: "temporary" url: "/tmp"
+  - name: "home" url: "/home"
+# Run ls command on a list of folders and place the results in a file
+brick1:
+  brick: GENERIC
+  config:
+    OUTPUT_FILE: "{{item.name}}_ls_file.txt"
+    COMMAND_LINE: "ls {{item.url}} > {{this.OUTPUT_FILE}}"
+  loop:
+    list: folders
+    id: name
+  export:
+    - value: "{{this.OUTPUT_FILE}}"
+      to: item.ls_file
+# Print files created by brick1
+brick2:
+  brick: GENERIC
+  config:
+    INPUT_FILE: "{{item.ls_file}}"
+    COMMAND_LINE: "cat {{item.ls_file}}"
+  loop:
+    list: folders
+    id: name
+```
+
+Remind that you can export as many values as you want.
+
+---
+## EXAMPLE: RNA-Seq pipeline
+
+```yaml
+---
+config:
+  nb_threads: 4
+  nb_jobs: 2
+  genome_name: GRCh38
+samples:
+  - name: test1 
+    type: TOTO
+  - name: test2 
+    type: TATA
+crac:
+  brick: CRAC
+  config:
+    INDEX: "/data/indexes/crac/{{config.genome_name}}"
+    OPTIONS: --no-ambiguity
+    KMER_LENGTH: 22
+    READS: "raw/{{item.name}}_1.fastq raw/{{item.name}}_2.fastq"
+    OUTPUT_PREFIX: "mapping/crac/{{item.name}}"
+    NB_THREADS: "{{config.nb_threads}}"
+  loop: 
+    list: samples
+    id: name
+  export: 
+    - value: "{{this.OUTPUT_FILE}}"
+      to: item.sam_file
+```
+---
+## EXAMPLE: RNA-Seq pipeline (2)
+
+```yaml
+cractools:
+  brick: CRACTOOLS_EXTRACT
+  config:
+    SAM_FILE: "{{item.sam_file}}"
+    CHIMERA_OUTPUT_PREFIX: "chimeras/cractools/{{item.name}}"
+    SPLICE_OUTPUT_PREFIX: "splices/cractools/{{item.name}}"
+    MUTATION_OUTPUT_PREFIX: "mutations/cractools/{{item.name}}"
+    NB_THREADS: "{{config.nb_threads}}"
+  loop: 
+    list: samples
+    id: name
+    export: 
+      - value: "{{this.CHIMERA_OUTPUT}}"
+        to: tem.chimeras 
+      - value: "{{this.SPLICE_OUTPUT}}"
+        to: item.splices
+      - value: "{{this.MUTATION_OUTPUT}}"
+        to: item.mutations
+
+counts:
+  brick: FEATURECOUNTS
+  config:
+    ANNOTATION_FILE: /data/annotations/human/Homo_sapiens.GRCh38.77.gtf
+    INPUT_ALIGNMENTS: "{{samples.extract('sam_file')}}"
+    OUTPUT_FILE: "quantification/gene_counts.tsv"
+```
+
+---
+# CREATING A REUSABLE MAKEFILE BRICK
+
+## Principles
+
+If you want to create to reusable bricks, create a new file under brick/
+directory with the name of your brick (in capslock by convention) and a
+`.Makefile` extension.
+
+In this Makefile template, you need to prefiex the variables names that belong
+to the template with `%%`. The only mandatory thing that need to appear is a
+rule called `%%`. This is the rule that will be called for this brick in the
+generated Makfile.
+
+---
+## The LaTeX example
+
+For exemple, let's create our first re-usable brick that will wrap the
+compilation of a latex file. Lets call it `LATEX_PDF.Makefile` :
+
+```makefile
+%%_LATEX_FILE = undef 
+%%_OUTPUT_FILE = $(basename $(%%_LATEX_FILE)).pdf
+%%_PDFLATEX_OPTIONS:
+%%_PDFLATEX_BINARY: pdflatex
+
+%%: $(%%_OUTPUT_FILE)
+
+$(%%_OUTPUT_FILE): $(%%_LATEX_FILE)
+  $(%%_PDFLATEX_BINARY) $(%%_PDFLATEX_OPTIONS) $(%%_LATEX_FILE)
+```
+
+This is a very simple wrapper around pdflatex that takes a .tex file and
+generate a .pdf from it. There is only one mandatory argument to intanciate
+this brick : `LATEX_FILE` wich is set to undef in order to control its
+declaration.
+
+---
+## The LaTeX example (2)
+
+As you may know, pdflatex generates a lots of intermediary files during the
+compilation. You can implement a clean rule named `%%_clean` that will be added
+to the rule `clean` in the finale Makefile. We can add such a rule :
+
+```makefile
+%%_clean: %%_clean_latex
+  rm $(%%_OUTPUT_FILE)
+
+%%_clean_latex:
+  rm -f $(addprefix $(basename $(%%_LATEX_FILE), .aux .bbl .blg .log .out .toc .glsdefs .mtc* .maf .glo .gls .ist .glg .lof))
+```
+
+This should remove the stuff.
+
+---
+## The LaTeX example (3)
+
+One thing we could add to make this brick more usable is a variable that
+contains a bibtex file that must be compiled with the file.
+
+```yaml
+%%_LATEX_FILE = undef
+%%_BIBTEX_FILE =
+%%_OUTPUT_FILE = $(basename $(%%_LATEX_FILE)).pdf
+%%_PDFLATEX_OPTIONS:
+%%_PDFLATEX_BINARY: pdflatex
+%%_BIBTEX_BINARY: bibtex
+
+%%: $(%%_OUTPUT_FILE)
+
+$(%%_OUTPUT_FILE): $(%%_LATEX_FILE)
+  $(%%_PDFLATEX_BINARY) $(%%_PDFLATEX_OPTIONS) $(%%_LATEX_FILE)
+ifneq ($(strip $(%%_BIBTEX_FILE)),)
+  $(%%_BIBTEX_BINARY) $(basename $(%%_LATEX_FILE))
+endif
+  $(%%_PDFLATEX_BINARY) $(%%_PDFLATEX_OPTIONS) $(%%_LATEX_FILE)
+
+ %%_clean: %%_clean_latex
+    rm $(%%_OUTPUT_FILE)
+
+ %%_clean_latex:
+   rm -f $(addprefix $(basename $(%%_LATEX_FILE), .aux .bbl .blg .log .out .toc .glsdefs .mtc* .maf .glo .gls .ist .glg .lof))
+```
+
+---
+## The LaTeX example (4)
+
+We can now use our brand new re-usable brick in a nice pipeline.
+
+```yaml
+---
+report:
+  brick: LATEX
+  config:
+    LATEX_FILE: report.tex
+```
+
+---
+## Bricks built-in documentation
+
+```makefile
+## DESCRIPTION
+# The LATEX brick is able to compile a latex file into a pdf using pdflatex command.
+# It is also able to integrate a bibtex file for the bibliography.
+#
+## VARIABLES
+%%_LATEX_FILE = undef#Latex file to be compiled
+%%_BIBTEX_FILE = #Bibtex file to compile with the LATEX_FILE if needed
+%%_OUTPUT_FILE = $(basename $(%%_LATEX_FILE)).pdf# Output PDF generated by the brick (Cannot be changed)
+%%_PDFLATEX_OPTIONS: #Options to provide to the pdflatex binary
+%%_PDFLATEX_BINARY: pdflatex# pdflatex binary to use
+%%_BIBTEX_BINARY: bibtex# Bibtex binary to use
+
+%%: $(%%_OUTPUT_FILE)
+
+$(%%_OUTPUT_FILE): $(%%_LATEX_FILE)
+  $(%%_PDFLATEX_BINARY) $(%%_PDFLATEX_OPTIONS) $(%%_LATEX_FILE)
+ifneq ($(strip $(%%_BIBTEX_FILE)),)
+  $(%%_BIBTEX_BINARY) $(basename $(%%_LATEX_FILE))
+endif
+  $(%%_PDFLATEX_BINARY) $(%%_PDFLATEX_OPTIONS) $(%%_LATEX_FILE)
+
+ %%_clean: %%_clean_latex
+    rm $(%%_OUTPUT_FILE)
+
+ %%_clean_latex:
+   rm -f $(addprefix $(basename $(%%_LATEX_FILE), .aux .bbl .blg .log .out .toc .glsdefs .mtc* .maf .glo .gls .ist .glg .lof))
+```
+
+---
+# Conclusion
+
+* Makepipe is a fully fonctionnal pipeline engine that helps you generating
+  Makefile that will acutally run the pipeline
+* It should be compliant with grid systems like Slurm
+* You can create re-usable bricks and share them with the community
+* There is still plenty of work to do if your excited by coding :
+    </textarea>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <script type="text/javascript">
+      var hljs = remark.highlighter.engine;
+    </script>
+    <script src="makefile.language.js" type="text/javascript"></script>
+    <script>
+      var slideshow = remark.create({highlightStyle: 'github'});
+    </script>
+  </body>
+</html>

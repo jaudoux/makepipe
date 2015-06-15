@@ -292,7 +292,13 @@ that will list all the folders wil a single `ls` call :
         COMMAND_LINE: "ls {{folders.extract('url')}}"
 
 The Makefile generated from this YAML pipline will exectute the single command
-`ls /tmp /home`.
+`ls /tmp /home`. By default the separator character is a space, but you can
+provide another one : `{{folders.extract('url',sep=',')}}`
+
+You can even extract multiple values at the same time :
+`{{folders.extract('url','name')}}`. By default the values of each item
+will be separated with a coma, but you can also change that with the
+`inside_sep` argument :`{{folders.extract('url','name',inside_sep='\t')}}`.
 
 ## Exporting
 
