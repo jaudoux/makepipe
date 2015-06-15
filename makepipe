@@ -158,7 +158,7 @@ sub build {
         next if $_ =~ /^#/;
         # Skip blank lines
         next if $_ =~ /^\s*$/;
-        if($_ =~ /^ifeq/) {
+        if($_ =~ /^ifeq|else/) {
           $_ = replaceMakefileGenericVariables($_,$process_name,\%common_variables,$process_iteration_name);
           $tmp .= $_;
           next;
