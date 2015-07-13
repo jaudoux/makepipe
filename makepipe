@@ -248,7 +248,8 @@ sub build {
         # do his job
         die "You need to defined a value to be saved with the 'from' key word" unless defined $export_item->{value};
         die "You need to defined a variable to save the value defined with the 'from' key word by using to 'to' key word" unless defined $export_item->{to};
-        my $from = replaceVars($export_item->{value},$config);
+        # Remove Makefile comments
+        my $from = removeMakefileComments(replaceVars($export_item->{value},$config));
         setValueToHash($config,$export_item->{to},$from);
       }
 
@@ -427,4 +428,10 @@ sub removeQuotes {
   my $v = shift;
   my ($unquoted_v) = $v =~ /^["\']?([^"\']*)["\']?$/;
   return $unquoted_v;
+}
+
+sub removeMakefileComments {
+  my $v = shift;
+  $v =~ s/([^#]*)(#?.*)/$1/;
+  return $v;
 }
