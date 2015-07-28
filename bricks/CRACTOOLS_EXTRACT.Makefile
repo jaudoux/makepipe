@@ -18,7 +18,7 @@
 
 ## OPTIONS
 %%_OPTIONS								= --coverless-splices# Options passed to CRACTOOLS_EXTRACT
-%%_BINARY									= cractools-extract# Binary used to call CRACTOOLS_EXTRACT
+%%_BINARY									= cractools extract# Binary used to call CRACTOOLS_EXTRACT
 %%_NB_THREADS							= 1# Number of threads allocated to the cractools binary
 
 %%: $(%%_SPLICE_OUTPUT)
