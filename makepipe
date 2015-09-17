@@ -36,10 +36,12 @@ use YAML::XS qw/LoadFile/;
 use Pod::Usage;
 use File::Temp qw/tempfile tempdir/;
 use File::Basename;
+use Carp;
+use File::Spec;
 #use Getopt::Long;
 #use Data::Dumper;
 
-my $bricks_directory = 'bricks/';
+my $bricks_directory = 'bricks';
 my $sub_command = shift @ARGV;
 pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
 
@@ -84,14 +86,18 @@ sub build {
   # Variables definition
   my @all = ();
   my @clean = ();
-  my $nb_jobs = $config->{config}->{nb_jobs};
-  $nb_jobs = 1 unless defined $nb_jobs;
   my $vars = "##############################\n#          VARIABLES         #\n##############################\n\n";
   my $rules = "##############################\n#            RULES           #\n##############################\n\n";
 
   # Include "CORE" brick
   #unshift(@all,"core");
   #$config->{core}->{brick} = "CORE";
+  
+  # Special keyword 'makepipe' is used for makepipes configuration
+  my $m_config;
+  $m_config->{nb_jobs} = 1;
+  push @{$m_config->{brick_dirs}}, $bricks_directory;
+  loadMakepipeConfig($m_config,$config);
 
   foreach my $process_name (keys %{$config}) {
     # Next if this is not a hash reference as we expect for a process description
@@ -99,7 +105,7 @@ sub build {
     my $brick = $config->{$process_name}->{brick};
     # Next if no brick is defined. We have nothing to do here --> .
     next if !defined $brick;
-    my $brick_file = getBrickFile($brick,$bricks_directory);
+    my $brick_file = getBrickFile($brick,$m_config->{brick_dirs});
 
     # Process loop processes if defined
     # if not we made a loop from the single process
@@ -258,7 +264,7 @@ sub build {
 
   # Print "all:" rule
   print "\nall: ".'$(lastword $(MAKEFILE_LIST))'."\n";
-  print "\t".'$(MAKE) -j '."$nb_jobs ".join(" ", @all)."\n" if @all;
+  print "\t".'$(MAKE) -j '."$m_config->{nb_jobs} ".join(" ", @all)."\n" if @all;
   print ".PHONY: all\n\n";
 
   # Print rule to re-generate the makefile if the pipeline has changed
@@ -278,6 +284,42 @@ sub build {
 
   # TODO add rm
   #print Dumper($config);
+}
+
+sub loadMakepipeConfig {
+  my ($m_config,$config) = @_;
+  if(defined $config->{makepipe}) {
+    my $l_config    = $config->{makepipe};
+    my $includes    = $l_config->{includes};
+    my $brick_dirs  = $l_config->{brick_dirs};
+
+    # Set parameters
+    $m_config->{nb_jobs} = $l_config->{nb_jobs} if defined $l_config->{nb_jobs};
+
+    # Load brick dirs
+    if(defined $brick_dirs) {
+      croak "makepipe 'brick_dirs' should be an array" unless ref($brick_dirs) eq "ARRAY";
+      map { push @{$m_config->{brick_dirs}}, $_ } @{$brick_dirs};
+    }
+
+    # Load includes
+    if(defined $includes) {
+      croak "makepipe includes should be an array" unless ref($includes) eq "ARRAY";
+      foreach my $inc (@{$includes}) {
+        my $inc_config = LoadFile($inc);
+        loadMakepipeConfig($m_config,$inc_config);
+        foreach my $k (keys %{$inc_config}) {
+          if(defined $config->{$k}) {
+            carp "Can't load process $k from include $inc, since it is already defined here";
+          } else {
+            $config->{$k} = $inc_config->{$k};
+          }
+        }
+      }
+    }
+    delete $config->{makepipe};
+  }
+  return $m_config;
 }
 
 # return true if one of the variable in argument is find in the string
@@ -414,13 +456,14 @@ sub parseMakefileCommentsToPod {
 }
 
 sub getBrickFile {
-  my ($brick,$bricks_directory) = @_;
-  my $brick_file = "$bricks_directory/$brick.Makefile";
+  my ($brick,$brick_dirs) = @_;
 
-  if(!-e $brick_file) {
-    die "brick $brick not found in bricks directory: $bricks_directory";
+  foreach my $dir (@{$brick_dirs}) {
+    my $brick_file = File::Spec->catfile($dir,"$brick.Makefile");
+    return $brick_file if (-e $brick_file);
   }
-  return $brick_file;
+
+  die "brick $brick not found in brick directories: ".join(",",@{$brick_dirs});
 }
 
 sub removeQuotes {
