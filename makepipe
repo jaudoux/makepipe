@@ -54,7 +54,7 @@ if($sub_command eq "help") {
 } elsif($sub_command eq "brick") {
   my $brick_name = shift @ARGV; 
   if(defined $brick_name) {
-    my $brick_file = getBrickFile($brick_name,$bricks_directory);
+    my $brick_file = getBrickFile($brick_name,[$bricks_directory]);
     my $pod = parseMakefileCommentsToPod($brick_file);
     my ($fh,$filename) = tempfile(); print $fh $pod; close $fh;
     pod2usage(-verbose => 2, -input => $filename);
