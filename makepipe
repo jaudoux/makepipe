@@ -164,7 +164,7 @@ sub build {
         next if $_ =~ /^#/;
         # Skip blank lines
         next if $_ =~ /^\s*$/;
-        if($_ =~ /^ifeq|else/) {
+        if($_ =~ /^ifeq|else|ifneq/) {
           $_ = replaceMakefileGenericVariables($_,$process_name,\%common_variables,$process_iteration_name);
           $tmp .= $_;
           next;
@@ -274,7 +274,8 @@ sub build {
 
   # Print vars and replace {{..}} expression with correct value
   # we need two pass form .extract() expressions
-  print replaceVars(replaceVars($vars,$config),$config);
+  #print replaceVars(replaceVars($vars,$config),$config);
+  print replaceVars($vars,$config);
 
   # Print rules
   print $rules;
@@ -308,18 +309,25 @@ sub loadMakepipeConfig {
       foreach my $inc (@{$includes}) {
         my $inc_config = LoadFile($inc);
         loadMakepipeConfig($m_config,$inc_config);
-        foreach my $k (keys %{$inc_config}) {
-          if(defined $config->{$k}) {
-            carp "Can't load process $k from include $inc, since it is already defined here";
-          } else {
-            $config->{$k} = $inc_config->{$k};
-          }
-        }
+        delete $inc_config->{makepipe};
+        updateConfigEntry($config,$inc_config);
       }
     }
-    delete $config->{makepipe};
   }
   return $m_config;
+}
+
+sub updateConfigEntry {
+  my ($a,$b) = @_;
+  if(ref($a) eq 'HASH' && ref($b) eq 'HASH') {
+    foreach my $k (keys %{$b}) {
+      if(defined $a->{$k}) {
+        updateConfigEntry($a->{$k},$b->{$k});
+      } else {
+        $a->{$k} = $b->{$k};
+      }
+    }
+  }
 }
 
 # return true if one of the variable in argument is find in the string
@@ -343,8 +351,9 @@ sub replaceVars {
   my ($string, $config,$prefix) = @_;
   $prefix = "" unless defined $prefix;
   # FIXME Add a warning if the value does not exists
-  $string =~ s/{{($prefix[^}]*)}}/getValueFromHash($config,$1)/eg;
-  return $string;
+  my $new_string = $string =~ s/{{($prefix[^}]*)}}/getValueFromHash($config,$1)/egr;
+  $new_string = replaceVars($new_string,$config,$prefix) if($new_string ne $string); 
+  return $new_string;
 }
 
 # given a "a.b.c" expression associated to a hash h->{a}->{b}->{c}
@@ -405,6 +414,7 @@ sub getNextValue {
     return $h->[$index];
   } else {
     $h->{$k} = $v if defined $v;
+    print STDERR "value $k not found\n" if !defined $h->{$k};
     return $h->{$k};
   }
 }
