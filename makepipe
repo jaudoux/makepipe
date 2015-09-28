@@ -99,6 +99,9 @@ sub build {
   push @{$m_config->{brick_dirs}}, $bricks_directory;
   loadMakepipeConfig($m_config,$config);
 
+  # load 'all targets if thet ared if defined by user
+  @all = split(" ",$m_config->{all_targets}) if defined $m_config->{all_targets};
+
   foreach my $process_name (keys %{$config}) {
     # Next if this is not a hash reference as we expect for a process description
     next if ref($config->{$process_name}) ne "HASH";
@@ -229,7 +232,7 @@ sub build {
         } else {
           # We add the process to the all: target if a PHONY rule exists for this
           # process
-          push @all, $process_iteration_name if($_ =~ /^%%:/);
+          push @all, $process_iteration_name if $_ =~ /^%%:/ && !defined $m_config->{all_targets};
           # Same for clean rule
           push @clean, $process_iteration_name if($_ =~ /^%%_clean:/);
           #$_ =~ s/%%/$process_iteration_name/g;
@@ -296,6 +299,7 @@ sub loadMakepipeConfig {
 
     # Set parameters
     $m_config->{nb_jobs} = $l_config->{nb_jobs} if defined $l_config->{nb_jobs};
+    $m_config->{all_targets} = $l_config->{all_targets} if defined $l_config->{all_targets};
 
     # Load brick dirs
     if(defined $brick_dirs) {
@@ -350,6 +354,20 @@ sub replaceItem {
 sub replaceVars {
   my ($string, $config,$prefix) = @_;
   $prefix = "" unless defined $prefix;
+  # First we need to handle the $if$,$else$ statements
+  my $f = sub {
+    my($condition,$if_statement,$else_statement) = @_;
+    if(defined getValueFromHash($config,$condition)) {
+      return $if_statement;
+    } else {
+      if(defined $else_statement) {
+        return $else_statement;
+      } else {
+        return "";
+      }
+    }
+  };
+  $string =~ s/\$if\((.*)\)\$(.*)\$(?:else\$(.*)\$)?endif\$/$f->($1,$2,$3)/ge;
   # FIXME Add a warning if the value does not exists
   my $new_string = $string =~ s/{{($prefix[^}]*)}}/getValueFromHash($config,$1)/egr;
   $new_string = replaceVars($new_string,$config,$prefix) if($new_string ne $string); 
@@ -395,6 +413,10 @@ sub getValueFromHash {
     }
     # TODO This shoud not be joined
     return join($sep,@extracted_values);
+  }elsif($last_key =~ /equal/) {
+    my ($value) = $last_key =~ /^equal\((.*)\)$/;
+    $value = removeQuotes($value);
+    return $h eq $value? $value : undef;
   }else {
     return getNextValue($h,$last_key,$new_value);
   }
