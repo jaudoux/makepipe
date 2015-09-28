@@ -25,6 +25,7 @@ a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
   * [Loops](#loops)
   * [Collection functions](#collection-functions)
   * [Exporting](#exporting)
+  * [Makefile configuration](#makefile-configuration)
   * [EXAMPLE: RNA-Seq pipeline](#example-rna-seq-pipeline)
 * [Creating a reusable Makefile brick](#creating-a-reusable-makefile-brick)
   * [Principles](#principles)
@@ -341,6 +342,28 @@ loop over the "folders" collection and uses the `ls_file` new entry created by
 brick1.
 
 Remind that you can export as many values as you want.
+
+## Makefile configuration
+
+Makepipe has a reserved collection names `makepipe` that holds its configuration
+variables ;
+
+- `nb_jobs` : An integer value that represent the number of jobs allocated for
+  the Makefile execution
+- `includes` : A list of Makepipe YAML file that should be imported
+- `brick_dirs` : A list of directories that contains bricks used in the pipeline
+
+
+Example:
+
+    ---
+    makepipe:
+      nb_jobs: 2
+      includes:
+        - ../pipeline.yml
+        - ../my_vars.yml
+      brick_dirs:
+        - $HOME/bricks
 
 ## EXAMPLE: RNA-Seq pipeline
 
