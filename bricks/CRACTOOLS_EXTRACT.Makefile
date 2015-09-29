@@ -9,6 +9,8 @@
 %%_CHIMERA_OUTPUT_PREFIX	= undef# Prefix for name of the chimera output file (see below)
 %%_SPLICE_OUTPUT_PREFIX		= undef# Prefix for name of the splice output file (see below)
 %%_MUTATION_OUTPUT_PREFIX	= undef# Prefix for name of the mutation output file (see below)
+%%_REFERENCE_FASTA				=
+%%_LOG_FILE								=
 %%_CHIMERA_OUTPUT_EXT			= -chimeras.tsv# Extension used for chimeras output file
 %%_SPLICE_OUTPUT_EXT			= -splices.bed# Extension used for splices output file
 %%_MUTATION_OUTPUT_EXT		= .vcf# Extension used for mutations output file
@@ -21,6 +23,10 @@
 %%_BINARY									= cractools extract# Binary used to call CRACTOOLS_EXTRACT
 %%_NB_THREADS							= 1# Number of threads allocated to the cractools binary
 
+ifneq ($(%%_REFERENCE_FASTA),)
+%%_OPTIONS += -r $(%%_REFERENCE_FASTA)
+endif
+
 %%: $(%%_SPLICE_OUTPUT)
 
 %%_clean:
@@ -32,6 +38,6 @@ $(%%_CHIMERA_OUTPUT) $(%%_MUTATION_OUTPUT): $(%%_SPLICE_OUTPUT)
 .SERIAL: $(%%_SPLICE_OUTPUT)
 $(%%_SPLICE_OUTPUT): $(%%_SAM_FILE)
 	@mkdir -p $(dir $(%%_CHIMERA_OUTPUT) $(%%_SPLICE_OUTPUT) $(%%_MUTATION_OUTPUT))
-	$(%%_BINARY) $(%%_OPTIONS) -p $(%%_NB_THREADS) $< -s $@ -m $(%%_MUTATION_OUTPUT) -c $(%%_CHIMERA_OUTPUT)
+	$(%%_BINARY) $(%%_OPTIONS) -p $(%%_NB_THREADS) $< -s $@ -m $(%%_MUTATION_OUTPUT) -c $(%%_CHIMERA_OUTPUT) $(%%_PIPE_COMMANDS)
 	@touch $(%%_MUTATION_OUTPUT)
 	@touch $(%%_CHIMERA_OUTPUT)
