@@ -32,14 +32,15 @@ Available commands:
 
 =cut
 
-use YAML::XS qw/LoadFile/;
+use YAML::XS qw/LoadFile Dump/;
+use JSON;
 use Pod::Usage;
 use File::Temp qw/tempfile tempdir/;
 use File::Basename;
 use Carp;
 use File::Spec;
 #use Getopt::Long;
-#use Data::Dumper;
+use Data::Dumper;
 
 my $bricks_directory = 'bricks';
 my $sub_command = shift @ARGV;
@@ -115,11 +116,17 @@ sub build {
     # if not we made a loop from the single process
     my $loop = $config->{$process_name}->{loop};
     my $loop_list = $loop->{list};
+    my $loop_filter = $loop->{filter};
     my @loop_items;
     if(defined $loop_list) {
       die "List $loop_list not found" if !defined $config->{$loop_list};
       my $i = 0;
       foreach my $item (@{$config->{$loop_list}}) {
+        if(defined $loop_filter) {
+          my $filter_value = getValueFromHash($item,$loop_filter);
+          print STDERR "loop_filter: $loop_filter filter_value: $filter_value\n";
+          $i++ & next if !defined $filter_value;
+        }
         # TODO We should verify that each iteration has a different id!!!
         my $item_name = defined $loop->{id} && defined $item->{$loop->{id}}? $item->{$loop->{id}} : $i;
         push(@loop_items,{name => $process_name."_".$item_name, item => $item, list => $loop_list, item_id => $i});
@@ -212,7 +219,8 @@ sub build {
           
           # If the value uses a variable that is process specific, then this variable
           # is also process-specific
-          $replaced_item = 1 if foundVariable($value,keys %process_specific_variables);
+          #$replaced_item = 1 if foundVariable($value,keys %process_specific_variables);
+          $replaced_item = 1;
 
           if($replaced_item) {
             $append_vars .= $tmp.$process_iteration_name."_"."$var $op $value\n";
@@ -262,8 +270,23 @@ sub build {
         die "You need to defined a value to be saved with the 'from' key word" unless defined $export_item->{value};
         die "You need to defined a variable to save the value defined with the 'from' key word by using to 'to' key word" unless defined $export_item->{to};
         # Remove Makefile comments
-        my $from = removeMakefileComments(replaceVars($export_item->{value},$config));
-        setValueToHash($config,$export_item->{to},$from);
+        #my $from = replaceVars($export_item->{value},$config);
+        my $from = replaceItem(replaceVars($export_item->{value},$config,"this"),$process_iteration->{list},$process_iteration->{item_id});
+        my $to   = replaceItemSimple($export_item->{to},$process_iteration->{list},$process_iteration->{item_id});
+        #removeMakefileComments(replaceVars($export_item->{value},$config));
+        if(defined $export_item->{action} && $export_item->{action} eq "push") {
+          if(!defined getValueFromHash($config,$to)) {
+            setValueToHash($config,$to,[$from]);
+          } else {
+            push @{getValueFromHash($config,$to)},$from;
+          }
+        }elsif(defined $export_item->{action} && $export_item->{action} eq "append") {
+          my $current_value = getValueFromHash($config,$to);
+          $current_value .= ' '.$from;
+          setValueToHash($config,$to,$current_value);
+        } else {
+          setValueToHash($config,$to,$from);
+        }
       }
 
       $i++;
@@ -283,6 +306,7 @@ sub build {
   # Print vars and replace {{..}} expression with correct value
   # we need two pass form .extract() expressions
   #print replaceVars(replaceVars($vars,$config),$config);
+  #print replaceVars($config,$config,"softwares");
   print replaceVars($vars,$config);
 
   # Print rules
@@ -352,12 +376,46 @@ sub foundVariable {
 # with the appropriate list element.
 sub replaceItem {
   my ($string, $list_name, $id) = @_;
-  $string =~ s/{{item/"{{$list_name.[$id]"/eg;
+  if(ref($string) eq 'HASH') {
+    my %new_hash;
+    foreach my $k (keys %{$string}) {
+      $new_hash{$k} = replaceItem($string->{$k},$list_name,$id);
+    }
+    return \%new_hash;
+  }elsif(ref($string) eq 'ARRAY') {
+    my @new_array;
+    for(my $i = 0; $i < @{$string}; $i++) {
+      $new_array[$i] = replaceItem($string->[$i],$list_name,$id);
+    }
+    return \@new_array;
+  }else {
+    $string =~ s/{{item/"{{$list_name.[$id]"/eg;
+  }
+  return $string;
+}
+
+sub replaceItemSimple {
+  my ($string, $list_name, $id) = @_;
+  $string =~ s/^item/"$list_name.[$id]"/eg;
   return $string;
 }
 
 sub replaceVars {
   my ($string, $config,$prefix) = @_;
+  # TODO Should we do a copy?
+  if(ref($string) eq 'HASH') {
+    my %new_hash;
+    foreach my $k (keys %{$string}) {
+      $new_hash{$k} = replaceVars($string->{$k},$config,$prefix);
+    }
+    return \%new_hash;
+  }elsif(ref($string) eq 'ARRAY') {
+    my @new_array;
+    for(my $i = 0; $i < @{$string}; $i++) {
+      $new_array[$i] = replaceVars($string->[$i],$config,$prefix);
+    }
+    return \@new_array;
+  }
   $prefix = "" unless defined $prefix;
   # First we need to handle the $if$,$else$ statements
   my $f = sub {
@@ -383,8 +441,14 @@ sub replaceVars {
 # gives the value of the leaf c
 sub getValueFromHash {
   my ($h,$keys,$new_value) = @_;
-  my @split_key = split /\./, $keys;
+  # TODO Change regex
+  #my @split_key = split m/\.(?![^()]*\))/, $keys;
+  my @split_key;
+  while($keys =~ /([^\.\(]+(?:\(.*\))?)/g) {
+      push @split_key, $1;
+  }
   my $last_key = pop @split_key;
+  print STDERR "LOL $last_key\n";
   foreach my $k (@split_key) {
     # If key correspond to an array element instead of hash key
     $h = getNextValue($h,$k);
@@ -392,8 +456,9 @@ sub getValueFromHash {
   if($last_key =~ /extract/) {
     my ($args)  = $last_key =~ /^extract\((.*)\)$/;
     my @args  = split(',',$args);
-    my @extract_keys;
+    my @extracted_values;
     my $sep = " ";
+    my @extract_keys;
     my $inside_sep = ",";
     foreach my $arg (@args) {
       my ($k, $v) = split("=",$arg);
@@ -404,17 +469,27 @@ sub getValueFromHash {
           $inside_sep = removeQuotes($v);
         }
       } else {
+        print STDERR "ADD KEY: $arg\n";
+        print STDERR "ADD KEY (without quotes): ".removeQuotes($arg)."\n";
         push @extract_keys, removeQuotes($arg);
       }
     }
-    my @extracted_values;
-    foreach my $it (@{$h}) {
-      my @local_values;
-      foreach my $k (@extract_keys) {
-        push @local_values, $it->{$k};
+    if(@extract_keys) {
+      print STDERR "TOTO".Dumper($h)."\n";
+      foreach my $it (@{$h}) {
+        print STDERR "TOTO\n";
+        my @local_values;
+        foreach my $k (@extract_keys) {
+          print STDERR "Looking for KEY $k\n";
+          push @local_values, getValueFromHash($it,$k);
+        }
+        push @extracted_values, join($inside_sep,@local_values);
+        #push @extracted_values, $it->{$sub_key};
       }
-      push @extracted_values, join($inside_sep,@local_values);
-      #push @extracted_values, $it->{$sub_key};
+    } else {
+      foreach my $it (@{$h}) {
+        push @extracted_values, $it;
+      }
     }
     # TODO This shoud not be joined
     return join($sep,@extracted_values);
@@ -422,6 +497,10 @@ sub getValueFromHash {
     my ($value) = $last_key =~ /^equal\((.*)\)$/;
     $value = removeQuotes($value);
     return $h eq $value? $value : undef;
+  }elsif($last_key =~ /yaml/) {
+    return Dump($h);
+  }elsif($last_key =~ /json/) {
+    return encode_json $h;
   }else {
     return getNextValue($h,$last_key,$new_value);
   }
@@ -441,6 +520,7 @@ sub getNextValue {
     return $h->[$index];
   } else {
     $h->{$k} = $v if defined $v;
+    #print STDERR "TOTO $k ".Dumper($h)."\n";
     print STDERR "value $k not found\n" if !defined $h->{$k};
     return $h->{$k};
   }
@@ -449,7 +529,7 @@ sub getNextValue {
 # Just an alias subroutines that call the generic "getValueFromHash"
 # that can also the the variable
 sub setValueToHash {
-  getValueFromHash(@_);
+  return getValueFromHash(@_);
 }
 
 # Replace Make variable that are constructed like : $(%%_XXX)
@@ -506,6 +586,7 @@ sub getBrickFile {
 sub removeQuotes {
   my $v = shift;
   my ($unquoted_v) = $v =~ /^["\']?([^"\']*)["\']?$/;
+  #my ($unquoted_v) = $v =~ /^["\']?(.*)["\']?$/;
   return $unquoted_v;
 }
 
