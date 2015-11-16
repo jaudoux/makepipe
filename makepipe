@@ -124,8 +124,7 @@ sub build {
       foreach my $item (@{$config->{$loop_list}}) {
         if(defined $loop_filter) {
           my $filter_value = getValueFromHash($item,$loop_filter);
-          print STDERR "loop_filter: $loop_filter filter_value: $filter_value\n";
-          $i++ & next if !defined $filter_value;
+          $i++ && next if !defined $filter_value;
         }
         # TODO We should verify that each iteration has a different id!!!
         my $item_name = defined $loop->{id} && defined $item->{$loop->{id}}? $item->{$loop->{id}} : $i;
@@ -189,7 +188,6 @@ sub build {
         # If this line correspond to a variable assignement
         # we check if a new value is defined in the pipeline config
         if(defined $var && defined $value) {
-          #print STDERR "VAR: $var, OP: $op, VALUE: $value\n";
           my $new_val = $config->{$process_name}->{config}->{$var};
           my $replaced_item = 0;
           if(defined $new_val && $op eq '=') {
@@ -448,7 +446,6 @@ sub getValueFromHash {
       push @split_key, $1;
   }
   my $last_key = pop @split_key;
-  print STDERR "LOL $last_key\n";
   foreach my $k (@split_key) {
     # If key correspond to an array element instead of hash key
     $h = getNextValue($h,$k);
@@ -469,18 +466,13 @@ sub getValueFromHash {
           $inside_sep = removeQuotes($v);
         }
       } else {
-        print STDERR "ADD KEY: $arg\n";
-        print STDERR "ADD KEY (without quotes): ".removeQuotes($arg)."\n";
         push @extract_keys, removeQuotes($arg);
       }
     }
     if(@extract_keys) {
-      print STDERR "TOTO".Dumper($h)."\n";
       foreach my $it (@{$h}) {
-        print STDERR "TOTO\n";
         my @local_values;
         foreach my $k (@extract_keys) {
-          print STDERR "Looking for KEY $k\n";
           push @local_values, getValueFromHash($it,$k);
         }
         push @extracted_values, join($inside_sep,@local_values);
@@ -520,7 +512,6 @@ sub getNextValue {
     return $h->[$index];
   } else {
     $h->{$k} = $v if defined $v;
-    #print STDERR "TOTO $k ".Dumper($h)."\n";
     print STDERR "value $k not found\n" if !defined $h->{$k};
     return $h->{$k};
   }
@@ -537,10 +528,8 @@ sub setValueToHash {
 # the block instanciation
 sub replaceMakefileGenericVariables {
   my ($line,$process_name,$process_variables,$process_iteration_name) = @_;
-  #print STDERR $line;
   my $replaceSub = sub { my $var_name = shift; defined $process_variables->{$var_name}? return $process_name : return $process_iteration_name; };
   $line =~ s/%%(_?)([^\):]*)/$replaceSub->($2)."$1$2"/eg;
-  #print STDERR $line;
   return $line;
 }
 
