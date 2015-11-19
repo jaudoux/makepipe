@@ -124,7 +124,10 @@ sub build {
       foreach my $item (@{$config->{$loop_list}}) {
         if(defined $loop_filter) {
           my $filter_value = getValueFromHash($item,$loop_filter);
-          $i++ && next if !defined $filter_value;
+          if(!defined $filter_value) {
+            $i++;
+            next;
+          }
         }
         # TODO We should verify that each iteration has a different id!!!
         my $item_name = defined $loop->{id} && defined $item->{$loop->{id}}? $item->{$loop->{id}} : $i;
