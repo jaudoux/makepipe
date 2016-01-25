@@ -1,7 +1,7 @@
 %%_READS = undef
 %%_INDEX = undef
 %%_OUTPUT_DIR = undef
-#%%_NB_THREADS = 1
+%%_NB_THREADS = 1
 
 ## OPTIONS
 %%_BINARY=kallisto
@@ -26,4 +26,5 @@ $(%%_ABUNDANCE_H5_FILE) $(%%_RUN_INFO_FILE): $(%%_ABUNDANCE_FILE)
 
 #.SERIAL: $(%%_ABUNDANCE_FILE)
 $(%%_ABUNDANCE_FILE): $(%%_READS)
+	mkdir -p $(dir $@)
 	$(%%_BINARY) quant $(%%_OPTIONS) $^ $(%%_PIPE_COMMANDS)
