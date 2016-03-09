@@ -41,8 +41,10 @@ use Carp;
 use File::Spec;
 #use Getopt::Long;
 use Data::Dumper;
+use Cwd 'abs_path';
 
 my $bricks_directory = 'bricks';
+my @generic_bricks_directories = ($bricks_directory,dirname(abs_path($0))."/$bricks_directory");
 my $sub_command = shift @ARGV;
 pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
 
@@ -55,7 +57,7 @@ if($sub_command eq "help") {
 } elsif($sub_command eq "brick") {
   my $brick_name = shift @ARGV; 
   if(defined $brick_name) {
-    my $brick_file = getBrickFile($brick_name,[$bricks_directory]);
+    my $brick_file = getBrickFile($brick_name,\@generic_bricks_directories);
     my $pod = parseMakefileCommentsToPod($brick_file);
     my ($fh,$filename) = tempfile(); print $fh $pod; close $fh;
     pod2usage(-verbose => 2, -input => $filename);
@@ -98,7 +100,7 @@ sub build {
   # Special keyword 'makepipe' is used for makepipes configuration
   my $m_config;
   $m_config->{nb_jobs} = 1;
-  push @{$m_config->{brick_dirs}}, $bricks_directory;
+  push @{$m_config->{brick_dirs}}, @generic_bricks_directories;
   loadMakepipeConfig($m_config,$config);
 
   # load 'all targets if thet ared if defined by user
@@ -186,6 +188,8 @@ sub build {
           next;
         }
         #my($var,$value) = $_ =~ /^%%_(\S+)\s*=\s*(.*)$/;
+        # Remove the comments at the end of the line
+        $_ =~ s/#.*$//g;
         # Regex to grep generic variable definitions
         my($var,$op,$value) = $_ =~ /\s*%%_(\S+)\s*(\+?=)\s*(.*)$/;
         # If this line correspond to a variable assignement
