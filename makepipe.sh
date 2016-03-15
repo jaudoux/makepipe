@@ -4,8 +4,12 @@
 # Where is located the $MAKEPIPE_REPOSITORY if not defined from env
 if [ $GITREPOSITORY ]
 then
-	MAKEPIPE_REPOSITORY=$GITREPOSITORY/makepipe
-else
+	if [ -d $GITREPOSITORY/makepipe ]
+	then
+		MAKEPIPE_REPOSITORY=$GITREPOSITORY/makepipe
+	fi
+elif [ -d /data/share/repository/makepipe ]
+then
 	# define a local
 	MAKEPIPE_REPOSITORY=/data/share/repository/makepipe
 fi
@@ -23,6 +27,19 @@ pwd=$(pwd)
 ###########
 # Functions
 #----------
+# show help for all command
+function usage() {
+echo "
+	Makepipe commands : 
+	 * init: init a new project with makepipe
+	 * update: update makepipe submodule from repository
+	 * build yml: build Makefile from yml file
+	 * brick: list all bricks available
+	 * brick name: info about a brick
+	 * list: list commands available
+"
+}
+
 # do init makepipe
 init() {
 	# Where to take the repository for makepipe
@@ -70,11 +87,46 @@ update() {
 }
 ############
 
-# Test if makepipe is already here
 if [ -x "$pwd/makepipe" ]
 then
 	makepipe="./makepipe"
-	# if we don't have an argument, default is 'build'
+else
+	echo -e "\tWarning: makepipe not initialised\n"
+fi
+
+
+# Manage help commands
+if [ "$1" == "help" ]
+then
+	case "$2" in
+			"init")
+				echo -e "Create git repository, add makepipe as submodule.\nmakepipe init [$MAKEPIPE_REPOSITORY]"
+				;;
+			"update")
+				echo -e "Update local branch of submodule makepipe. Do \nmakepipe update [$MAKEPIPE_REPOSITORY]"
+				;;
+			"list")
+				usage
+				;;
+			"build" | "brick")
+				if [ $makepipe ]
+				then
+					$makepipe help $2
+				else
+					echo "To get the help on "$2", you have to init makepipe"
+				fi
+				;;
+			*)	
+				usage
+				;;
+	esac
+	exit 0
+fi
+
+# Test if makepipe is already here
+if [ $makepipe ]
+then
+	# if we don't have an argument, default is to send to local makepipe
 	case $1 in
 		"init")
 			echo "You have already initialized this repository,"
@@ -88,19 +140,6 @@ then
 			fi
 			update $MAKEPIPE_REPOSITORY
 			;;
-		"help")
-			case "$2" in
-				"init")
-					echo -e "Do \nmakepipe init [makepipe repository]"
-					;;
-				"update")
-					echo -e "Do \nmakepipe update"
-					;;
-				*)
-					$makepipe help $2
-					;;
-			esac
-			;;
 		*)
 			$makepipe $*
 			#makepipe build *.yml > Makefile
@@ -111,12 +150,14 @@ else
 	if [ "$1" == "init" ]
 	then
 		shift
+		if [ $1 ]
+		then
+			MAKEPIPE_REPOSITORY=$1
+		fi
+		init $MAKEPIPE_REPOSITORY
+	else
+		usage
 	fi
-	if [ $1 ]
-	then
-		MAKEPIPE_REPOSITORY=$1
-	fi
-	init $MAKEPIPE_REPOSITORY
 
 fi
 
