@@ -49,9 +49,7 @@ init() {
 	git submodule add $repository makepipe.module
 	$(cd makepipe.module && git checkout -b local)
 	mkdir bricks
-	cd bricks
-	for f in ../makepipe.module/bricks/*; do ln -s $f;done
-	cd ..
+	for f in makepipe.module/bricks/*; do ln -s ../$f bricks/$(basename $f);done
 	ln -s makepipe.module/makepipe
 	git add .
 	git commit -m 'Initial release'
