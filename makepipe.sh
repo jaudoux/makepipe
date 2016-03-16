@@ -47,6 +47,7 @@ init() {
 	# init git repository for this projects
 	git init
 	git submodule add $repository makepipe.module
+	$(cd makepipe.module && git checkout -b local)
 	mkdir bricks
 	cd bricks
 	for f in ../makepipe.module/bricks/*; do ln -s $f;done
@@ -91,6 +92,8 @@ cd makepipe.module
 git commit -am 'your message' if repository not clean
 git checkout master
 git pull origin master
+git rebase local
+git chekckout master
 version=$(git tag | grep makepipe | tail -1)
 cd ..
 git commit -a -m \"Update to makepipe version $version\"
