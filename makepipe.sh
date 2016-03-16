@@ -82,17 +82,21 @@ update() {
 	then
 		echo "You have files to commit or files to index"
  		echo "Do 'git add & git commit'"
-		echo "or git ci -a -m 'your message'"
-		exit 1
+		echo "or git commit -am 'your message'"
 	fi
 	# update current git module repository for this projects
-	echo "You should do:"
-	echo "git submodule update"
-	#version=$(git $makepiperep tag | grep makepipe | tail -1)
-	echo "git commit -a -m \"Update to version $version\""
-	echo "git tag $version"
-	echo "Makepipe updated"
-	echo "Do make to update project"
+	echo <<END
+# You should do:
+cd makepipe.module
+git commit -am 'your message' if repository not clean
+git checkout master
+git pull origin master
+version=$(git tag | grep makepipe | tail -1)
+cd ..
+git commit -a -m \"Update to makepipe version $version\"
+git tag "makepipe/$version"
+echo "Makepipe updated"
+END
 }
 ############
 
