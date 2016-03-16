@@ -79,7 +79,9 @@ END
 # do update makepipe
 update() {
 	# check if current project repository is clean
-	if ! git status -s
+	gitstatus=$(git status -s | grep -v '?')
+	echo $gitstatus
+	if [ "$(git status -s | grep -v '?')" != "" ]
 	then
 		echo "You have files to commit or files to index"
  		echo "Do 'git add & git commit'"
