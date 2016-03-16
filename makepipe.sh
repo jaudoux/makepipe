@@ -59,10 +59,19 @@ init() {
 	then
 		git tag $version
 	fi
-	echo "Makepipe installed"
-	echo "Git Repository initialized"
-	echo "Configure your yml file, ckeck makepipe.module/pipeline.yml for a sample configuration"
-	echo "For more information, read makepipe.module/README.md"
+	echo <<END
+	Makepipe installed
+	Git Repository initialized
+	Configure your yml file, ckeck makepipe.module/pipeline.yml for a sample configuration
+	For more information, read makepipe.module/README.md
+	#######
+	The original bricks are followed by the submodule "makepipe.module" (via symlink).
+	If you modify a brick, you should commit inside the submodule "makepipe.module" on
+    the local branch.
+	If you add a new brick, you can add to your current git repository (inside the bricks folder) 
+	or put it in the bricks folder of the submodule "makepipe.module" and index it in the local
+	branch (don't forget the symlink in your bricks folder).  	
+END
 }
 
 #----------
