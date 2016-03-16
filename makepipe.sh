@@ -156,6 +156,9 @@ then
 			fi
 			update $MAKEPIPE_REPOSITORY
 			;;
+		"list")
+			usage
+			;;
 		*)
 			$makepipe $*
 			#makepipe build *.yml > Makefile
