@@ -222,7 +222,7 @@ sub build {
 
           # Set the value assigned to $var for this process iteration this is
           # the values that will be used by {{this.value}} expressions
-          $process_variables{$var} = $value;
+          $process_variables{$var} = '$('.$process_iteration_name."_".$var.')';
           
           # If the value uses a variable that is process specific, then this variable
           # is also process-specific
@@ -272,8 +272,6 @@ sub build {
       # Treat summarization process that consists in saving some informations
       # about the current iteration to some datastructure
       foreach my $export_item (@{$loop->{export}}, @{$config->{$process_name}->{export}}) {
-        # TODO We should not export the true value but the variable name and let Makefile
-        # do his job
         die "You need to defined a value to be saved with the 'from' key word" unless defined $export_item->{value};
         die "You need to defined a variable to save the value defined with the 'from' key word by using to 'to' key word" unless defined $export_item->{to};
         # Remove Makefile comments

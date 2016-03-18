@@ -37,7 +37,8 @@ endif
 %%: $(%%_READS)
 
 %%_clean:
-	rm $(%%_READS)
+	-rm -I $(%%_READS)
+	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_READS_PREFIX))
 
 $(word 1, $(%%_READS)):
 	fastq-dump $(%%_FASTQ_DUMP_OPTIONS) $(%%_SRR_ID)
