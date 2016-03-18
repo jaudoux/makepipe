@@ -3,12 +3,12 @@
 # from SRA toolkit.
 
 ## INPUT VARS
-%%_SRR_ID							=	undef
+%%_SRR_ID							=	undef# SRA identifiers for the run (with SRR prefix)
 %%_TYPE   						= PE#Type of sequencing : PE (Paired-End) or SE (Single-End)
 
 ## OPTIONS
 %%_MAX_READS 					=	#Maximum number of reads to download
-%%_GZIP_OUTPUT				= true#Output is gzipped
+%%_GZIP_OUTPUT				= true#Output is gzipped (true or false)
 %%_FASTQ_DUMP_OPTIONS	=	#Other options to give to fastq-dump
 
 ## OUTPUT VARS
