@@ -19,6 +19,7 @@ a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
 * [Installation, set-up](#installation-set-up)
 * [Writing YAML pipelines](#writing-yaml-pipelines)
   * [Collection](#collections)
+  * [The makepipe collection](#the-makepipe-collection)
   * [Brick instances](#brick-instances)
   * [Bricks collection](#bricks-collection)
   * [Use YAML collections and variables](#use-yaml-collections-and-variables)
@@ -79,6 +80,20 @@ We can also add another collection that will hold some configuration variables
 
 You can define as many collections as you want, and gives them the name you
 desire.
+
+## The makepipe collection
+
+All names can be used to create collections except "makepipe" that is reserved to
+define general configurations for the makepipe system.
+
+    makepipe:
+        nb_jobs: 6
+        bricks_dir:
+            - ../bricks/
+            - /data/share/makepipe/bricks/
+        includes:
+            - ../pipeline.yml
+        all_targets: crac ...
 
 ## Brick instances
 
