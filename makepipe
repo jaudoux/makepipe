@@ -121,7 +121,7 @@ sub build {
     my $loop = $config->{$process_name}->{loop};
     my $loop_list = $loop->{list};
     my $loop_filter = $loop->{filter};
-    my @loop_items;
+    my %loop_items;
     if(defined $loop_list) {
       die "List $loop_list not found" if !defined $config->{$loop_list};
       my $i = 0;
@@ -133,17 +133,20 @@ sub build {
             next;
           }
         }
-        # TODO We should verify that each iteration has a different id!!!
         my $item_name = defined $loop->{id} && defined $item->{$loop->{id}}? $item->{$loop->{id}} : $i;
-        push(@loop_items,{name => $process_name."_".$item_name, item => $item, list => $loop_list, item_id => $i});
+        my $process_iteration_name = $process_name."_".$item_name;
+        if(defined $loop_items{$process_iteration_name}) {
+          die "Two items with the same name ($item_name) in process $process_name."
+        }
+        $loop_items{$process_iteration_name} = {item => $item, list => $loop_list, item_id => $i};
         $i++;
       }
       # Add master rules to make all iteration process and to clean all iteration files
       $rules .= "# Master process: $process_name\n";
-      $rules .= "$process_name: ".join(" ", map { $_->{name} } @loop_items)."\n";
-      $rules .= "$process_name"."_clean: ".join(" ", map { $_->{name}."_clean" } @loop_items)."\n\n";
+      $rules .= "$process_name: ".join(" ", map { $_ } keys %loop_items)."\n";
+      $rules .= "$process_name"."_clean: ".join(" ", map { $_."_clean" } keys %loop_items)."\n\n";
     } else {
-      push(@loop_items,{ name => $process_name, item => undef });
+      $loop_items{$process_name} = {item => undef};
     }
 
     my $i = 0;
@@ -151,20 +154,19 @@ sub build {
     my %common_variables;
     my %process_specific_variables;
     # We create a new instance of the brick for as many iterations as we need
-    foreach my $process_iteration (@loop_items) {
+    foreach my $process_iteration_name (keys %loop_items) {
 
       # Hold the variables values in a hash table
       my %process_variables;
+
+      # Set the temp "item" list to the current item
+      my $process_iteration = $loop_items{$process_iteration_name};
 
       # Set the temp "item" list to the current item
       $config->{item} = $process_iteration->{item};
 
       # Set the temp "this" hash to the current item configuration
       $config->{this} = \%process_variables;
-
-      # Set the temp "item" list to the current item
-      #$config->{this} = $config;
-      my $process_iteration_name = $process_iteration->{name};
 
       open (my $fh,$brick_file) or die ("Cannot open $brick_file");
       $vars .= "# Process: $process_iteration_name, constructed from BRICK $brick\n";
