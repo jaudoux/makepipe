@@ -138,6 +138,10 @@ sub build {
         push(@loop_items,{name => $process_name."_".$item_name, item => $item, list => $loop_list, item_id => $i});
         $i++;
       }
+      # Add master rules to make all iteration process and to clean all iteration files
+      $rules .= "# Master process: $process_name\n";
+      $rules .= "$process_name: ".join(" ", map { $_->{name} } @loop_items)."\n";
+      $rules .= "$process_name"."_clean: ".join(" ", map { $_->{name}."_clean" } @loop_items)."\n\n";
     } else {
       push(@loop_items,{ name => $process_name, item => undef });
     }
