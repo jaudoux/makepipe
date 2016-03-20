@@ -10,11 +10,9 @@
 
 .PHONY: %%
 
+%%: $(%%_OUTPUT_FILE) $(%%_INPUT_FILE)
 ifeq ($(strip $(%%_OUTPUT_FILE)),)
-%%: $(%%_INPUT_FILE)
 	$(%%_COMMAND_LINE)
-else
-%%: $(%%_OUTPUT_FILE)
 endif
 
 %%_clean:
