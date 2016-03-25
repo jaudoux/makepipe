@@ -25,8 +25,8 @@
 %%_SAMTOOLS_OPTIONS   = -@4# Options passed to samtools view
 
 ## COMPUTED VARS
-%%_VERSION 						= $(shell $(%%_BINARY) -v | head -1 | cut -d " " -f 3) # Crac version
-%%_OPTIONS += -i $(%%_INDEX) -k $(%%_KMER_LENGTH) --bam --nb-tags-info-stored 10000 # Crac Options
+%%_VERSION 						= $(shell $(%%_BINARY) -v | head -1 | cut -d " " -f 3)# Crac version
+%%_OPTIONS += -i $(%%_INDEX) -k $(%%_KMER_LENGTH) --bam --nb-tags-info-stored 10000# Crac Options
 %%_PRODUCED_FILES = $(%%_OUTPUT_FILE) $(%%_SUMMARY_FILE) $(%%_LOG_FILE)
 
 
