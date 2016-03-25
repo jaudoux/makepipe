@@ -11,6 +11,7 @@
 
 ## OPTIONS
 %%_BINARY 						= jellyfish# Binary to use for running Jellyfish
+%%_VERSION						= $(shell $(%%_BINARY) --version | cut -d " " -f 2)
 %%_INITIAL_HASH_SIZE 	= 1000#Initial size of jellyfish hash 
 %%_LOWER_COUNT				= 2#Do not output k-mers with counts lower than this threshold
 %%_NB_THREADS					= 1#Number of threads to use
