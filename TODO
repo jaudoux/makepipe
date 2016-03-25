@@ -74,6 +74,9 @@
 - [ ] Find a system to organize the bricks according to what they do
       We could put bricks in sub-folder to have a sort of categorization for easier exploration
 - [ ] Propose an autocompletion for makpipe commands and for the "brick" subcommand
+- [ ] Propose to generate a graph of the Makefile pipelines like SnakeMake does
+      This could be done with GraphViz::Makefile
+- [ ] Add a GENERIC rule to make directories if they do not exists!!!
 
 # NEW BRICKS
 - [x] Generic brick (see before)
