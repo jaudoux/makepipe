@@ -59,6 +59,6 @@ $(%%_NOVEL_SPLICE_FILE): $(%%_OUTPUT_FILE)
 	-rmdir -p --ignore-fail-on-non-empty $(dir $(%%_OUTPUT_FILE))
 
 .SERIAL: $(%%_OUTPUT_FILE)
-$(%%_OUTPUT_FILE): $(%%_READS)
+$(%%_OUTPUT_FILE): $(%%_READS) $(%%_INDEX).1.ht2
 	mkdir -p $(dir $@)
 	$(%%_BINARY) $(%%_OPTIONS) 2> $(%%_LOG_FILE) $(%%_PIPE_COMMANDS)
