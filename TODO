@@ -77,6 +77,8 @@
 - [ ] Propose to generate a graph of the Makefile pipelines like SnakeMake does
       This could be done with GraphViz::Makefile
 - [ ] Add a GENERIC rule to make directories if they do not exists!!!
+- [ ] Add a GENERIC rule "makepipe" to only re-build the Makefile
+- [ ] We should find a way to imbircate multiple bricks with one loop, to simplify the code...
 
 # NEW BRICKS
 - [x] Generic brick (see before)
