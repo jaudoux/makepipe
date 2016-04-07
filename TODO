@@ -17,7 +17,7 @@
 - [x] Simplify output Makefile :
       - [x] If rules or variables are equal between all iterations of a process, we could only use on definition!!!
       - [x] Use a variable as item id instead of a number
-      - [ ] Could we do the same for rules???
+      - [x] Could we do the same for rules???
 - [x] Add a rule to all Makefile in order to first re-generate the makefile from the YAML file if it is more recent before running the pipeline
 - [x] Allow the possibility to place directly shell commands in the YAML file instead of using
       a pre-defined brick
@@ -30,29 +30,29 @@
 - [x] "Export" should not be placed in loop statement but at the same level?
 
 - [ ] Tables should be defined as "list" in YAML template even if they are converted into string with space separated items in the Makefile
-- [ ] Add a "filter" function to select a subset of items in a list that match a given value
+- [x] Add a "filter" function to select a subset of items in a list that match a given value
 - [ ] Add some kind of version ID to the pipeline in order to check prepare a new version comming of makepipe with a different syntax.
 - [ ] Number of threads should be define in the "core" brick
 - [ ] We should be able, not to specify output filenames to bricks
-- [ ] Add documentation to the binary
-- [ ] Create a specification format document for the YAML pipeline description
-- [ ] Create developer documentation for construction Makefile bricks
+- [ ] Add documentation to the binary
+- [x] Create a specification format document for the YAML pipeline description
+- [x] Create developer documentation for construction Makefile bricks
 - [ ] Find a way to cut the code in more pieces
-- [ ] Add an option that tell where to find brick elements
+- [x] Add an option that tell where to find brick elements
 - [ ] We should introduce some test cases for different purpose:
       - Verify retro-compatibility of the system
       - Verify that we can predict errors and not generate a corrupted Makefile
-- [ ] Introduce clean rules that aggregate all cleans of process iterations into
+- [x] Introduce clean rules that aggregate all cleans of process iterations into
       one single rule named with the process_name
 - [ ] Write a Vim plugin for our YAML syntax to be highligten better
 - [ ] Add a generic rule to remove empty directories
       Maybe we could recursively try to delete all directories?
-- [ ] We could put bricks in sub-folder to have a sort of categorization for easier exploration
 - [ ] All bricks should be able to declare some kind of version id of the software they use
 - [ ] We should print a complete log file of the all pipeline that has been executed with dates, times, commands arguments and other cool things
 - [ ] Place .SERIAL rule as an option for CRAC and CRACTOOLS_EXTRACT
-      Maybe this could be automatically placed???
+      - [ ] Maybe this could be automatically placed???
 - [ ] Implement some kind of if/else statment in {{..}} syntax
+- [ ] Implement some kind of for loop statment in {{..}} syntax
 - [ ] Add an option to "build" subcommand to tell makepipe if we should place the
       auto-regen rules in the generate Makefile or not
 - [ ] Support Makefiles "import" commands
@@ -70,12 +70,19 @@
                   - With wich software (crac, star, ....)
                   - What reference do you want to use (GRCh38....)
         ....
+- [ ] Add an author description for each brick
+- [ ] Find a system to organize the bricks according to what they do
+      We could put bricks in sub-folder to have a sort of categorization for easier exploration
+- [ ] Propose an autocompletion for makpipe commands and for the "brick" subcommand
+- [ ] Propose to generate a graph of the Makefile pipelines like SnakeMake does
+      This could be done with GraphViz::Makefile
+- [ ] Add a GENERIC rule to make directories if they do not exists!!!
 
 # NEW BRICKS
 - [x] Generic brick (see before)
 - [ ] Add a brick that generate rmarkdown reports
 - [ ] Annovar brick
-- [ ] Genome Simulator brick
+- [x] Genome Simulator brick
 - [ ] Create a brick to filter reads
 - [ ] Create a generic brick to create symlinks
 - [ ] Create a brick to rename files

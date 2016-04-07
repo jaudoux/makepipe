@@ -29,12 +29,14 @@ MakePipe Features :
 * [Installation, set-up](#installation-set-up)
 * [Writing YAML pipelines](#writing-yaml-pipelines)
   * [Collection](#collections)
+  * [The makepipe collection](#the-makepipe-collection)
   * [Brick instances](#brick-instances)
   * [Bricks collection](#bricks-collection)
   * [Use YAML collections and variables](#use-yaml-collections-and-variables)
   * [Loops](#loops)
   * [Collection functions](#collection-functions)
   * [Exporting](#exporting)
+  * [Makefile configuration](#makefile-configuration)
   * [EXAMPLE: RNA-Seq pipeline](#example-rna-seq-pipeline)
 * [Creating a reusable Makefile brick](#creating-a-reusable-makefile-brick)
   * [Principles](#principles)
@@ -88,6 +90,20 @@ We can also add another collection that will hold some configuration variables
 
 You can define as many collections as you want, and gives them the name you
 desire.
+
+## The makepipe collection
+
+All names can be used to create collections except "makepipe" that is reserved to
+define general configurations for the makepipe system.
+
+    makepipe:
+        nb_jobs: 6
+        bricks_dir:
+            - ../bricks/
+            - /data/share/makepipe/bricks/
+        includes:
+            - ../pipeline.yml
+        all_targets: crac ...
 
 ## Brick instances
 
@@ -302,7 +318,13 @@ that will list all the folders wil a single `ls` call :
         COMMAND_LINE: "ls {{folders.extract('url')}}"
 
 The Makefile generated from this YAML pipline will exectute the single command
-`ls /tmp /home`.
+`ls /tmp /home`. By default the separator character is a space, but you can
+provide another one : `{{folders.extract('url',sep=',')}}`
+
+You can even extract multiple values at the same time :
+`{{folders.extract('url','name')}}`. By default the values of each item
+will be separated with a coma, but you can also change that with the
+`inside_sep` argument :`{{folders.extract('url','name',inside_sep='\t')}}`.
 
 ## Exporting
 
@@ -345,6 +367,28 @@ loop over the "folders" collection and uses the `ls_file` new entry created by
 brick1.
 
 Remind that you can export as many values as you want.
+
+## Makefile configuration
+
+Makepipe has a reserved collection names `makepipe` that holds its configuration
+variables ;
+
+- `nb_jobs` : An integer value that represent the number of jobs allocated for
+  the Makefile execution
+- `includes` : A list of Makepipe YAML file that should be imported
+- `brick_dirs` : A list of directories that contains bricks used in the pipeline
+
+
+Example:
+
+    ---
+    makepipe:
+      nb_jobs: 2
+      includes:
+        - ../pipeline.yml
+        - ../my_vars.yml
+      brick_dirs:
+        - $HOME/bricks
 
 ## EXAMPLE: RNA-Seq pipeline
 
