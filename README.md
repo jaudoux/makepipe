@@ -14,6 +14,16 @@ Create a pipeline with Makepipe is simple as hell, you just need to create a
 simple YAML description of the pipeline and we do the rest, that is generating
 a fully fonctionnal Makefile version of the pipeline, ready to be "maked".
 
+Makepipe brings the flexibility of YAML and the reliability of Makefiles to create
+all-purpose pipelines.
+
+MakePipe Features :
+
+* **flat-file pipeline** You pipeline is described in a YAML configuration
+  file. No database to set-up.
+* **No installation required**
+* **low-dependencies**
+
 # TABLE OF CONTENTS
 
 * [Installation, set-up](#installation-set-up)
