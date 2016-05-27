@@ -9,7 +9,7 @@ Makepipe - Create tricky Makefile pipelines from simple YAML configuration files
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 AUTHORS
 
@@ -24,11 +24,13 @@ version 0.03
   makepipe command [Arguments]
 
 Available commands:
-  
-  commands: list the application's commands
-      help: display a command's help screen
-     brick: display a brick's help
-     build: generate a Makefile from a YAML pipelie
+
+  * help: display a command's help screen
+  * build: yaml: generate a Makefile from a YAML pipeline
+  * brick: list all bricks available
+  * brick name: display a brick's help
+  * init: init a new project with makepipe in current folder
+  * update: update makepipe submodule from repository
 
 =cut
 
@@ -51,7 +53,7 @@ GetOptions(
 );
 $debug = 1 if ($verbose >1);
 
-my $bricks_directory = 'bricks';
+my $bricks_directory = 'makepipe/bricks';
 my @generic_bricks_directories = ($bricks_directory,dirname(abs_path($0))."/$bricks_directory");
 my $sub_command = shift @ARGV;
 pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
