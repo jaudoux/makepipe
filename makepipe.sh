@@ -79,19 +79,24 @@ END
 }
 
 #----------
-# do update makepipe
+# do update makepipe
 update() {
-	# check if current project repository is clean
+	# check if current project repository is clean
 	gitstatus=$(git status -s | grep -v '?')
-	echo $gitstatus
 	if [ "$(git status -s | grep -v '?')" != "" ]
 	then
-		echo "You have files to commit or files to index"
- 		echo "Do 'git add & git commit'"
-		echo "or git commit -am 'your message'"
+    echo '<-------'
+    echo $gitstatus
+    echo '------->'
+    echo "You have files to commit or files to index/commit"
+    echo "Do 'git add & git commit'"
+    echo "or git commit -am 'your message'"
+    echo "or see https://git-scm.com/book/en/v2/Git-Tools-Submodules"
+    exit 0
 	fi
 	# update current git module repository for this projects
-	echo <<END
+  echo "[info] Doing update of makepipe"
+	cat <<END
 # You should do:
 cd makepipe.module
 git commit -am 'your message' if repository not clean
@@ -103,7 +108,7 @@ version=$(git tag | grep makepipe | tail -1)
 cd ..
 git commit -a -m \"Update to makepipe version $version\"
 git tag "makepipe/$version"
-echo "Makepipe updated"
+echo "[info] Makepipe updated"
 END
 }
 ############
