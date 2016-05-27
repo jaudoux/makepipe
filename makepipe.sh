@@ -54,30 +54,27 @@ init() {
   fi
 	# init git repository for this projects
 	git init
-	git submodule add $repository makepipe.module
-	$(cd makepipe.module && git checkout -b local)
-	mkdir bricks
-	for f in makepipe.module/bricks/*; do ln -s ../$f bricks/$(basename $f);done
-	ln -s makepipe.module/makepipe
+	git submodule add $repository makepipe
+	$(cd makepipe && git checkout -b local)
 	git add .
-	git commit -m 'Initial release'
-	version=$(git --git-dir=makepipe.module/.git tag | grep makepipe | tail -1)
+	git commit -m 'Initial release on local branch'
+	version=$(git --git-dir=makepipe/.git tag | grep makepipe | tail -1)
 	if [ $version ]
 	then
 		git tag $version
 	fi
-	echo <<END
-	Makepipe installed
-	Git Repository initialized
-	Configure your yml file, ckeck makepipe.module/pipeline.yml for a sample configuration
-	For more information, read makepipe.module/README.md
-	#######
-	The original bricks are followed by the submodule "makepipe.module" (via symlink).
-	If you modify a brick, you should commit inside the submodule "makepipe.module" on
-    the local branch.
-	If you add a new brick, you can add to your current git repository (inside the bricks folder) 
-	or put it in the bricks folder of the submodule "makepipe.module" and index it in the local
-	branch (don't forget the symlink in your bricks folder).  	
+	cat <<END
+	[info] Makepipe installed
+	[info] Git Repository initialized
+
+# Configure your yml file, ckeck makepipee/pipeline.yml as sample configuration file.
+For more information, read makepipe/README.md
+ * The original bricks are managed in the submodule "makepipe/bricks".
+ * If you modify a brick, you should commit inside the submodule "makepipe" on
+   the local branch.
+ * If you add a new brick, you can add to your current git repository (inside the bricks folder)
+ * or put it in the bricks folder of the submodule "makepipe" and index it in the local
+branch.
 END
 }
 
@@ -111,11 +108,11 @@ END
 }
 ############
 
-if [ -x "$pwd/makepipe" ]
+if [ -x "$pwd/makepipe/makepipe" ]
 then
-	makepipe="./makepipe"
+	makepipe="./makepipe/makepipe"
 else
-	echo -e "\tWarning: makepipe not initialised\n"
+	echo -e "[Warning] Makepipe not initialised\n"
 fi
 
 

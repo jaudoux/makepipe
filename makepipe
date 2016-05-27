@@ -53,7 +53,7 @@ GetOptions(
 );
 $debug = 1 if ($verbose >1);
 
-my $bricks_directory = 'bricks';
+my $bricks_directory = 'makepipe/bricks';
 my @generic_bricks_directories = ($bricks_directory,dirname(abs_path($0))."/$bricks_directory");
 my $sub_command = shift @ARGV;
 pod2usage(-verbose => 99, -sections => ["VERSION","SYNOPSIS"]) if !defined $sub_command;
