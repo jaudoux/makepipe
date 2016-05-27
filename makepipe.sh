@@ -79,34 +79,16 @@ END
 }
 
 #----------
-# do update makepipe
-update() {
-	# check if current project repository is clean
-	gitstatus=$(git status -s | grep -v '?')
-	if [ "$(git status -s | grep -v '?')" != "" ]
-	then
-    echo '<-------'
-    echo $gitstatus
-    echo '------->'
-    echo "You have files to commit or files to index/commit"
-    echo "Do 'git add & git commit'"
-    echo "or git commit -am 'your message'"
-    echo "or see https://git-scm.com/book/en/v2/Git-Tools-Submodules"
-    exit 0
-	fi
-	# update current git module repository for this projects
-  echo "[info] Doing update of makepipe"
-  # update from v0.03
-  if [ -d makepipe.module ]
-  then
-    [ -L makepipe ] && rm makepipe
-    for f in bricks/*; do [ -L $f ] && rm $f; done
-    rmdir bricks && mv makepipe.module makepipe
-    if [ $? ]
-    then
-      cat <<END
-Something went wrong
-Do it by your self:
+upgrade0.03info() {
+  cat <<END
+----
+Something went wrong & Do it by yourself:
+# Files NOT in bricks or makepipe.module
+ * You have files to commit or files to index/commit"
+ * Do 'git add & git commit'
+ * or git commit -am 'your message'
+
+# Files IN bricks or makepipe.module
  * If new file in bricks/*, move them in makepipe.module/bricks/
  * cd makepipe.module
  * create a local branch in makepipe.module:
@@ -119,8 +101,36 @@ Do it by your self:
   * cd ..
   * git commit -a -m "Makepipe ready for upgrade from v0.03"
   * makepipe update
+
+# More info on submodule
+ * see https://git-scm.com/book/en/v2/Git-Tools-Submodules
 END
-      exit 1
+  exit 1
+}
+
+# do update makepipe
+update() {
+	# check if current project repository is clean
+	gitstatus=$(git status -s | grep -v '?')
+	if [ "$(git status -s | grep -v '?')" != "" ]
+	then
+    echo '<-------'
+    echo $gitstatus
+    echo '------->'
+    upgradev0.03info
+    exit 0
+	fi
+	# update current git module repository for this projects
+  echo "[info] Doing update of makepipe"
+  # update from v0.03
+  if [ -d makepipe.module ]
+  then
+    [ -L makepipe ] && rm makepipe
+    for f in bricks/*; do [ -L $f ] && rm $f; done
+    rmdir bricks && mv makepipe.module makepipe
+    if [ $? ]
+    then
+      upgradev0.03info
     fi
     git commit -a -m 'Updated Makepipe from version 0.03'
     echo "Updated from version 0.03"
