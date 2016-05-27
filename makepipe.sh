@@ -79,7 +79,7 @@ END
 }
 
 #----------
-upgrade0.03info() {
+upgradev0.03info() {
   cat <<END
 ----
 Something went wrong & Do it by yourself:
