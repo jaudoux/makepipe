@@ -130,6 +130,11 @@ update() {
     rmdir bricks && mv makepipe.module makepipe
     [ $? -gt 0 ] && upgradev0.03info
     # update path for git module
+    mv .git/modules/makepipe.module .git/modules/makepipe
+    for f in .git/config .git/modules/makepipe/config makepipe/.git
+    do
+      sed -i 's/makepipe.module/makepipe/' $f
+    done
     git commit -a -m 'Updated Makepipe from version 0.03'
     echo "Updated from version 0.03"
   fi
