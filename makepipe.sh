@@ -135,10 +135,11 @@ update() {
     do
       sed -i 's/makepipe.module/makepipe/' $f
     done
-    git commit -a -m 'Updated Makepipe from version 0.03'
+    (cd makepipe && git commit -a -m 'Updated Makepipe from version 0.03')
     echo "Updated from version 0.03"
   fi
   git submodule update --remote --rebase
+  git commit -am 'Upgraded to makepipe 0.04'
   echo "[info] Makepipe updated"
 }
 ############
