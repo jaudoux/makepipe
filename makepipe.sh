@@ -30,13 +30,13 @@ pwd=$(pwd)
 # show help for all command
 function usage() {
 echo "
-	Makepipe commands : 
-	 * init: init a new project with makepipe
-	 * update: update makepipe submodule from repository
-	 * build yml: build Makefile from yml file
-	 * brick: list all bricks available
-	 * brick name: info about a brick
-	 * list: list commands available
+	Makepipe commands :
+  * help: display a command's help screen
+  * build: yaml: generate a Makefile from a YAML pipeline
+  * brick: list all bricks available
+  * brick name: display a brick's help
+  * init: init a new project with makepipe in current folder
+  * update: update makepipe submodule from repository
 "
 }
 
@@ -128,9 +128,6 @@ then
 				;;
 			"update")
 				echo -e "Update local branch of submodule makepipe. Do \nmakepipe update [$MAKEPIPE_REPOSITORY]"
-				;;
-			"list")
-				usage
 				;;
 			"build" | "brick")
 				if [ $makepipe ]
