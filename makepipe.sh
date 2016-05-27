@@ -128,10 +128,8 @@ update() {
     [ -L makepipe ] && rm makepipe
     for f in bricks/*; do [ -L $f ] && rm $f; done
     rmdir bricks && mv makepipe.module makepipe
-    if [ $? ]
-    then
-      upgradev0.03info
-    fi
+    [ $? -gt 0 ] && upgradev0.03info
+    # update path for git module
     git commit -a -m 'Updated Makepipe from version 0.03'
     echo "Updated from version 0.03"
   fi
