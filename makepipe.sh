@@ -134,7 +134,7 @@ then
 					echo "To get the help on "$2", you have to init makepipe"
 				fi
 				;;
-			*)	
+			*)
 				usage
 				;;
 	esac
@@ -150,7 +150,7 @@ then
 			echo "You have already initialized this repository,"
 		   	echo -e "you should do \nmakepipe update"
 			;;
-		"update") 
+		"update")
 			# we do update
 			if [ "$2" ]
 			then
