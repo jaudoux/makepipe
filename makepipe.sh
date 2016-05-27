@@ -132,8 +132,9 @@ END
 
 if [ -d makepipe.module ]
 then
-  echo "You HAVE to upgrade to makepipe v0.04"
-  update
+  echo "You HAVE to upgrade to makepipe v0.04, by doing:"
+  echo "makepipe update"
+	makepipe="./makepipe.offline"
 fi
 
 if [ -x "$pwd/makepipe/makepipe" ]
