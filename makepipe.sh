@@ -96,22 +96,41 @@ update() {
 	fi
 	# update current git module repository for this projects
   echo "[info] Doing update of makepipe"
-	cat <<END
-# You should do:
-cd makepipe.module
-git commit -am 'your message' if repository not clean
-git checkout master
-git pull origin master
-git rebase local
-git chekckout master
-version=$(git tag | grep makepipe | tail -1)
-cd ..
-git commit -a -m \"Update to makepipe version $version\"
-git tag "makepipe/$version"
-echo "[info] Makepipe updated"
+  # update from v0.03
+  if [ -d makepipe.module ]
+  then
+    [ -L makepipe ] && rm makepipe
+    for f in bricks/*; do [ -L $f ] && rm $f; done
+    rmdir bricks && mv makepipe.module makepipe
+    [ $? ] && cat <<END
+    Something went wrong
+    Do it by your self:
+     * If new file in bricks/*, move them in makepipe.module/bricks/
+     * cd makepipe.module
+     * create a local branch in makepipe.module:
+          git checkout -b local
+          git commit -am 'your message'
+          git chekckout master
+          git pull origin master
+          git rebase local
+          git checkout local
+      * cd ..
+      * git commit -a -m "Makepipe ready for upgrade from v0.03"
+      * makepipe update
 END
+    git commit -a -m 'Updated Makepipe from version 0.03'
+    echo "Updated from version 0.03"
+  fi
+  git submodule update --remote --rebase
+  echo "[info] Makepipe updated"
 }
 ############
+
+if [ -d makepipe.module ]
+then
+  echo "You HAVE to upgrade to makepipe v0.04"
+  update
+fi
 
 if [ -x "$pwd/makepipe/makepipe" ]
 then
