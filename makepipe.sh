@@ -102,22 +102,26 @@ update() {
     [ -L makepipe ] && rm makepipe
     for f in bricks/*; do [ -L $f ] && rm $f; done
     rmdir bricks && mv makepipe.module makepipe
-    [ $? ] && cat <<END
-    Something went wrong
-    Do it by your self:
-     * If new file in bricks/*, move them in makepipe.module/bricks/
-     * cd makepipe.module
-     * create a local branch in makepipe.module:
-          git checkout -b local
-          git commit -am 'your message'
-          git chekckout master
-          git pull origin master
-          git rebase local
-          git checkout local
-      * cd ..
-      * git commit -a -m "Makepipe ready for upgrade from v0.03"
-      * makepipe update
+    if [ $? ]
+    then
+      cat <<END
+Something went wrong
+Do it by your self:
+ * If new file in bricks/*, move them in makepipe.module/bricks/
+ * cd makepipe.module
+ * create a local branch in makepipe.module:
+      git checkout -b local
+      git commit -am 'your message'
+      git chekckout master
+      git pull origin master
+      git rebase local
+      git checkout local
+  * cd ..
+  * git commit -a -m "Makepipe ready for upgrade from v0.03"
+  * makepipe update
 END
+      exit 1
+    fi
     git commit -a -m 'Updated Makepipe from version 0.03'
     echo "Updated from version 0.03"
   fi
