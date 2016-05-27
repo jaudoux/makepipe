@@ -44,6 +44,14 @@ echo "
 init() {
 	# Where to take the repository for makepipe
 	repository="$1"
+  # Check git not present in current folder
+  if [ -d .git ]
+  then
+    echo "You have already a git repository in this directory"
+    echo "You can add makepipe as submodule by doing:"
+    echo "git submodule add $repository makepipe"
+    exit 0
+  fi
 	# init git repository for this projects
 	git init
 	git submodule add $repository makepipe.module
