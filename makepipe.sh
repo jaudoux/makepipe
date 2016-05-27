@@ -56,7 +56,9 @@ init() {
 	git init
 	git submodule add $repository makepipe
 	$(cd makepipe && git checkout -b local)
-	git add .
+  # Ignore bam, fastq
+  cp makepipe/.gitignore .gitignore
+	git add makepipe .gitignore
 	git commit -m 'Initial release on local branch'
 	version=$(git --git-dir=makepipe/.git tag | grep makepipe | tail -1)
 	if [ $version ]

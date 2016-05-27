@@ -1,2 +1,5 @@
 Makefile
 makepipe-*.tar.gz
+*.bam
+*.fastq
+*.fastq.gz
