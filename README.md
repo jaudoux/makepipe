@@ -98,7 +98,7 @@ define general configurations for the makepipe system.
 
     makepipe:
         nb_jobs: 6
-        bricks_dir:
+        brick_dirs:
             - ../bricks/
             - /data/share/makepipe/bricks/
         includes:
