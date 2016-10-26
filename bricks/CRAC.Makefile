@@ -32,7 +32,7 @@
 
 %%_PIPE_COMMANDS = > $(%%_OUTPUT_FILE)
 ifeq ($(%%_SORT_BAM),true)
-%%_PIPE_COMMANDS = | samtools sort $(%%_SAMTOOLS_OPTIONS) - $(basename $(%%_OUTPUT_FILE))
+%%_PIPE_COMMANDS = | samtools sort $(%%_SAMTOOLS_OPTIONS) - -o $(%%_OUTPUT_FILE)
 ifeq ($(%%_INDEX_BAM),true)
 %%_PIPE_COMMANDS += && samtools index $(%%_OUTPUT_FILE)
 %%_PRODUCED_FILES += $(basename $(%%_OUTPUT_FILE)).bam.bai
