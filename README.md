@@ -1,5 +1,5 @@
 <p align="center">
-![MakePipe logo](img/makepipe-logo-small.png)
+![MakePipe logo](/img/makepipe-logo-small.png)
 </p>
 
 # DESCRIPTION
